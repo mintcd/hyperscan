@@ -1,0 +1,47 @@
+mcclellan 8
+report: 512, states: 13, length: 912
+astart: 11, fstart: 11
+single accept: 1, has_accel: 1
+accel_limit: 11, accept_limit 12
+
+
+Alphabet
+  0: e
+  1: g
+  2: i
+  3: n
+  4: r
+  5: s
+  6: t
+  7: [0-9]
+  8: [^\deginrst]
+
+00000 [00 - ff]->0
+00001 [00 - 64]->11 65->2 [66 - 73]->11 74->1 [75 - ff]->11
+00002 [00 - 72]->11 73->3 74->1 [75 - ff]->11
+00003 [00 - 73]->11 74->4 [75 - ff]->11
+00004 [00 - 2f]->11 [30 - 39]->5 [3a - 64]->11 65->2 [66 - 73]->11 74->1 [75 - ff]->11
+00005 [00 - 2f]->11 [30 - 39]->5 [3a - 72]->11 73->6 74->1 [75 - ff]->11
+00006 [00 - 73]->11 74->7 [75 - ff]->11
+00007 [00 - 64]->11 65->2 [66 - 71]->11 72->8 73->11 74->1 [75 - ff]->11
+00008 [00 - 68]->11 69->9 [6a - 73]->11 74->1 [75 - ff]->11
+00009 [00 - 6d]->11 6e->10 [6f - 73]->11 74->1 [75 - ff]->11
+00010 [00 - 66]->11 67->12 [68 - 73]->11 74->1 [75 - ff]->11
+00011:VV [00 - 73]->11 74->1 [75 - ff]->11
+00012 [00 - 73]->11 74->1 [75 - ff]->11
+
+Acceleration
+------------
+00011  double-vermicelli [\x74\x65]
+
+Queue                : 0
+Length               : 912 bytes
+Num Positions        : 13
+Scratch State        : 1 bytes
+Stream State         : 1 bytes
+Flags                : 
+Max Width            : inf/unknown
+Min Width            : 0
+BiAnchored Width     : inf/unknown
+Max Offset           : inf/unknown
+Reverse Acceleration : NONE

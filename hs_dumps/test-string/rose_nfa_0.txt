@@ -1,0 +1,299 @@
+32-bit LimEx NFA (2 shifts, 0 exceptions)
+flags: 
+
+MSK init                 00000000 00000000 00000000 00000000
+MSK init_dot_star        00000000 00000000 00000000 00000000
+MSK accept               00010000 00000000 00000000 00000000
+MSK accept_at_eod        00000000 00000000 00000000 00000000
+MSK accel                00000000 00000000 00000000 00000000
+MSK accel_and_friends    00000000 00000000 00000000 00000000
+MSK compress_mask        11111111 11111111 11111111 11111111
+MSK emask                00000000 00000000 00000000 00000000
+MSK zombie               00000000 00000000 00000000 00000000
+MSK top_0                10000000 00000000 00000000 00000000
+Shift Masks:
+	 Shift 0(0)		Mask: 01000000 00000000 00000000 00000000
+	 Shift 1(1)		Mask: 11100000 00000000 00000000 00000000
+reach 0x00     -> mask 0
+reach 0x01     -> mask 0
+reach 0x02     -> mask 0
+reach 0x03     -> mask 0
+reach 0x04     -> mask 0
+reach 0x05     -> mask 0
+reach 0x06     -> mask 0
+reach 0x07     -> mask 0
+reach 0x08     -> mask 0
+reach 0x09     -> mask 0
+reach 0x0a     -> mask 0
+reach 0x0b     -> mask 0
+reach 0x0c     -> mask 0
+reach 0x0d     -> mask 0
+reach 0x0e     -> mask 0
+reach 0x0f     -> mask 0
+reach 0x10     -> mask 0
+reach 0x11     -> mask 0
+reach 0x12     -> mask 0
+reach 0x13     -> mask 0
+reach 0x14     -> mask 0
+reach 0x15     -> mask 0
+reach 0x16     -> mask 0
+reach 0x17     -> mask 0
+reach 0x18     -> mask 0
+reach 0x19     -> mask 0
+reach 0x1a     -> mask 0
+reach 0x1b     -> mask 0
+reach 0x1c     -> mask 0
+reach 0x1d     -> mask 0
+reach 0x1e     -> mask 0
+reach 0x1f     -> mask 0
+reach 0x20 ' ' -> mask 0
+reach 0x21 '!' -> mask 0
+reach 0x22 '"' -> mask 0
+reach 0x23 '#' -> mask 0
+reach 0x24 '$' -> mask 0
+reach 0x25 '%' -> mask 0
+reach 0x26 '&' -> mask 0
+reach 0x27 ''' -> mask 0
+reach 0x28 '(' -> mask 0
+reach 0x29 ')' -> mask 0
+reach 0x2a '*' -> mask 0
+reach 0x2b '+' -> mask 0
+reach 0x2c ',' -> mask 0
+reach 0x2d '-' -> mask 0
+reach 0x2e '.' -> mask 0
+reach 0x2f '/' -> mask 0
+reach 0x30 '0' -> mask 1
+reach 0x31 '1' -> mask 1
+reach 0x32 '2' -> mask 1
+reach 0x33 '3' -> mask 1
+reach 0x34 '4' -> mask 1
+reach 0x35 '5' -> mask 1
+reach 0x36 '6' -> mask 1
+reach 0x37 '7' -> mask 1
+reach 0x38 '8' -> mask 1
+reach 0x39 '9' -> mask 1
+reach 0x3a ':' -> mask 0
+reach 0x3b ';' -> mask 0
+reach 0x3c '<' -> mask 0
+reach 0x3d '=' -> mask 0
+reach 0x3e '>' -> mask 0
+reach 0x3f '?' -> mask 0
+reach 0x40 '@' -> mask 0
+reach 0x41 'A' -> mask 0
+reach 0x42 'B' -> mask 0
+reach 0x43 'C' -> mask 0
+reach 0x44 'D' -> mask 0
+reach 0x45 'E' -> mask 0
+reach 0x46 'F' -> mask 0
+reach 0x47 'G' -> mask 0
+reach 0x48 'H' -> mask 0
+reach 0x49 'I' -> mask 0
+reach 0x4a 'J' -> mask 0
+reach 0x4b 'K' -> mask 0
+reach 0x4c 'L' -> mask 0
+reach 0x4d 'M' -> mask 0
+reach 0x4e 'N' -> mask 0
+reach 0x4f 'O' -> mask 0
+reach 0x50 'P' -> mask 0
+reach 0x51 'Q' -> mask 0
+reach 0x52 'R' -> mask 0
+reach 0x53 'S' -> mask 0
+reach 0x54 'T' -> mask 0
+reach 0x55 'U' -> mask 0
+reach 0x56 'V' -> mask 0
+reach 0x57 'W' -> mask 0
+reach 0x58 'X' -> mask 0
+reach 0x59 'Y' -> mask 0
+reach 0x5a 'Z' -> mask 0
+reach 0x5b '[' -> mask 0
+reach 0x5c '\' -> mask 0
+reach 0x5d ']' -> mask 0
+reach 0x5e '^' -> mask 0
+reach 0x5f '_' -> mask 0
+reach 0x60 '`' -> mask 0
+reach 0x61 'a' -> mask 0
+reach 0x62 'b' -> mask 0
+reach 0x63 'c' -> mask 0
+reach 0x64 'd' -> mask 0
+reach 0x65 'e' -> mask 0
+reach 0x66 'f' -> mask 0
+reach 0x67 'g' -> mask 0
+reach 0x68 'h' -> mask 0
+reach 0x69 'i' -> mask 0
+reach 0x6a 'j' -> mask 0
+reach 0x6b 'k' -> mask 0
+reach 0x6c 'l' -> mask 0
+reach 0x6d 'm' -> mask 0
+reach 0x6e 'n' -> mask 0
+reach 0x6f 'o' -> mask 0
+reach 0x70 'p' -> mask 0
+reach 0x71 'q' -> mask 0
+reach 0x72 'r' -> mask 0
+reach 0x73 's' -> mask 2
+reach 0x74 't' -> mask 3
+reach 0x75 'u' -> mask 0
+reach 0x76 'v' -> mask 0
+reach 0x77 'w' -> mask 0
+reach 0x78 'x' -> mask 0
+reach 0x79 'y' -> mask 0
+reach 0x7a 'z' -> mask 0
+reach 0x7b '{' -> mask 0
+reach 0x7c '|' -> mask 0
+reach 0x7d '}' -> mask 0
+reach 0x7e '~' -> mask 0
+reach 0x7f     -> mask 0
+reach 0x80     -> mask 0
+reach 0x81     -> mask 0
+reach 0x82     -> mask 0
+reach 0x83     -> mask 0
+reach 0x84     -> mask 0
+reach 0x85     -> mask 0
+reach 0x86     -> mask 0
+reach 0x87     -> mask 0
+reach 0x88     -> mask 0
+reach 0x89     -> mask 0
+reach 0x8a     -> mask 0
+reach 0x8b     -> mask 0
+reach 0x8c     -> mask 0
+reach 0x8d     -> mask 0
+reach 0x8e     -> mask 0
+reach 0x8f     -> mask 0
+reach 0x90     -> mask 0
+reach 0x91     -> mask 0
+reach 0x92     -> mask 0
+reach 0x93     -> mask 0
+reach 0x94     -> mask 0
+reach 0x95     -> mask 0
+reach 0x96     -> mask 0
+reach 0x97     -> mask 0
+reach 0x98     -> mask 0
+reach 0x99     -> mask 0
+reach 0x9a     -> mask 0
+reach 0x9b     -> mask 0
+reach 0x9c     -> mask 0
+reach 0x9d     -> mask 0
+reach 0x9e     -> mask 0
+reach 0x9f     -> mask 0
+reach 0xa0     -> mask 0
+reach 0xa1     -> mask 0
+reach 0xa2     -> mask 0
+reach 0xa3     -> mask 0
+reach 0xa4     -> mask 0
+reach 0xa5     -> mask 0
+reach 0xa6     -> mask 0
+reach 0xa7     -> mask 0
+reach 0xa8     -> mask 0
+reach 0xa9     -> mask 0
+reach 0xaa     -> mask 0
+reach 0xab     -> mask 0
+reach 0xac     -> mask 0
+reach 0xad     -> mask 0
+reach 0xae     -> mask 0
+reach 0xaf     -> mask 0
+reach 0xb0     -> mask 0
+reach 0xb1     -> mask 0
+reach 0xb2     -> mask 0
+reach 0xb3     -> mask 0
+reach 0xb4     -> mask 0
+reach 0xb5     -> mask 0
+reach 0xb6     -> mask 0
+reach 0xb7     -> mask 0
+reach 0xb8     -> mask 0
+reach 0xb9     -> mask 0
+reach 0xba     -> mask 0
+reach 0xbb     -> mask 0
+reach 0xbc     -> mask 0
+reach 0xbd     -> mask 0
+reach 0xbe     -> mask 0
+reach 0xbf     -> mask 0
+reach 0xc0     -> mask 0
+reach 0xc1     -> mask 0
+reach 0xc2     -> mask 0
+reach 0xc3     -> mask 0
+reach 0xc4     -> mask 0
+reach 0xc5     -> mask 0
+reach 0xc6     -> mask 0
+reach 0xc7     -> mask 0
+reach 0xc8     -> mask 0
+reach 0xc9     -> mask 0
+reach 0xca     -> mask 0
+reach 0xcb     -> mask 0
+reach 0xcc     -> mask 0
+reach 0xcd     -> mask 0
+reach 0xce     -> mask 0
+reach 0xcf     -> mask 0
+reach 0xd0     -> mask 0
+reach 0xd1     -> mask 0
+reach 0xd2     -> mask 0
+reach 0xd3     -> mask 0
+reach 0xd4     -> mask 0
+reach 0xd5     -> mask 0
+reach 0xd6     -> mask 0
+reach 0xd7     -> mask 0
+reach 0xd8     -> mask 0
+reach 0xd9     -> mask 0
+reach 0xda     -> mask 0
+reach 0xdb     -> mask 0
+reach 0xdc     -> mask 0
+reach 0xdd     -> mask 0
+reach 0xde     -> mask 0
+reach 0xdf     -> mask 0
+reach 0xe0     -> mask 0
+reach 0xe1     -> mask 0
+reach 0xe2     -> mask 0
+reach 0xe3     -> mask 0
+reach 0xe4     -> mask 0
+reach 0xe5     -> mask 0
+reach 0xe6     -> mask 0
+reach 0xe7     -> mask 0
+reach 0xe8     -> mask 0
+reach 0xe9     -> mask 0
+reach 0xea     -> mask 0
+reach 0xeb     -> mask 0
+reach 0xec     -> mask 0
+reach 0xed     -> mask 0
+reach 0xee     -> mask 0
+reach 0xef     -> mask 0
+reach 0xf0     -> mask 0
+reach 0xf1     -> mask 0
+reach 0xf2     -> mask 0
+reach 0xf3     -> mask 0
+reach 0xf4     -> mask 0
+reach 0xf5     -> mask 0
+reach 0xf6     -> mask 0
+reach 0xf7     -> mask 0
+reach 0xf8     -> mask 0
+reach 0xf9     -> mask 0
+reach 0xfa     -> mask 0
+reach 0xfb     -> mask 0
+reach 0xfc     -> mask 0
+reach 0xfd     -> mask 0
+reach 0xfe     -> mask 0
+reach 0xff     -> mask 0
+MSK reach mask 0         00000000 00000000 00000000 00000000
+MSK reach mask 1         01000000 00000000 00000000 00000000
+MSK reach mask 2         00100000 00000000 00000000 00000000
+MSK reach mask 3         10010000 00000000 00000000 00000000
+
+1 accepts.
+  idx 0 fires single report 0
+
+0 accepts at EOD.
+
+
+
+0 acceleration schemes.
+
+0 bounded repeats.
+
+Queue                : 0
+Length               : 768 bytes
+Num Positions        : 4
+Scratch State        : 4 bytes
+Stream State         : 1 bytes
+Flags                : 
+Max Width            : inf/unknown
+Min Width            : 3
+BiAnchored Width     : inf/unknown
+Max Offset           : inf/unknown
+Reverse Acceleration : NONE

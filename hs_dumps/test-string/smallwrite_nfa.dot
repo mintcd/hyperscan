@@ -1,0 +1,60 @@
+digraph NFA {
+rankdir=LR;
+size="11.5,8"
+node [ shape = circle ];
+START [style=invis];
+STARTF [style=invis];
+STARTA [style=invis];
+0 [style=invis];
+1 [ width = 1, fixedsize = true, fontsize = 12, label = "1" ]; 
+1 -> 11 [ label = "[^et]" ];
+1 -> 2 [ label = "e" ];
+1 -> 1 [ label = "t" ];
+2 [ width = 1, fixedsize = true, fontsize = 12, label = "2" ]; 
+2 -> 11 [ label = "[^st]" ];
+2 -> 3 [ label = "s" ];
+2 -> 1 [ label = "t" ];
+3 [ width = 1, fixedsize = true, fontsize = 12, label = "3" ]; 
+3 -> 11 [ label = "[^t]" ];
+3 -> 4 [ label = "t" ];
+4 [ width = 1, fixedsize = true, fontsize = 12, label = "4" ]; 
+4 -> 11 [ label = "[^\\det]" ];
+4 -> 5 [ label = "[0-9]" ];
+4 -> 2 [ label = "e" ];
+4 -> 1 [ label = "t" ];
+5 [ width = 1, fixedsize = true, fontsize = 12, label = "5" ]; 
+5 -> 11 [ label = "[^\\dst]" ];
+5 -> 5 [ label = "[0-9]" ];
+5 -> 6 [ label = "s" ];
+5 -> 1 [ label = "t" ];
+6 [ width = 1, fixedsize = true, fontsize = 12, label = "6" ]; 
+6 -> 11 [ label = "[^t]" ];
+6 -> 7 [ label = "t" ];
+7 [ width = 1, fixedsize = true, fontsize = 12, label = "7" ]; 
+7 -> 11 [ label = "[^ert]" ];
+7 -> 2 [ label = "e" ];
+7 -> 8 [ label = "r" ];
+7 -> 1 [ label = "t" ];
+8 [ width = 1, fixedsize = true, fontsize = 12, label = "8" ]; 
+8 -> 11 [ label = "[^it]" ];
+8 -> 9 [ label = "i" ];
+8 -> 1 [ label = "t" ];
+9 [ width = 1, fixedsize = true, fontsize = 12, label = "9" ]; 
+9 -> 11 [ label = "[^nt]" ];
+9 -> 10 [ label = "n" ];
+9 -> 1 [ label = "t" ];
+10 [ width = 1, fixedsize = true, fontsize = 12, label = "10" ]; 
+10 -> 11 [ label = "[^gt]" ];
+10 -> 12 [ label = "g" ];
+10 -> 1 [ label = "t" ];
+11 [ width = 1, fixedsize = true, fontsize = 12, label = "11" ]; 
+11 [ color = forestgreen style=diagonals];
+STARTA -> 11 [color = blue ]
+STARTF -> 11 [color = red ]
+11 -> 11 [ label = "[^t]" ];
+11 -> 1 [ label = "t" ];
+12 [ width = 1, fixedsize = true, fontsize = 12, label = "12" ]; 
+12 [ shape = doublecircle ];
+12 -> 11 [ label = "[^t]" ];
+12 -> 1 [ label = "t" ];
+}

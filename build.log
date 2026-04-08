@@ -1,0 +1,7 @@
+MSBuild version 17.14.40+3e7442088 for .NET Framework
+
+  hs_compile.vcxproj -> D:\Projects\hyperscan\build_msvc\hs_compile.dir\RelWithDebInfo\hs_compile.lib
+  hs_exec.vcxproj -> D:\Projects\hyperscan\build_msvc\hs_exec.dir\RelWithDebInfo\hs_exec.lib
+  hs.vcxproj -> D:\Projects\hyperscan\build_msvc\lib\hs.lib
+  dump_rose.cpp
+  dump_rose.vcxproj -> D:\Projects\hyperscan\build_msvc\bin\dump_rose.exe

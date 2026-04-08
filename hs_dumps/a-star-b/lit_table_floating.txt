@@ -1,0 +1,7 @@
+Noodle table
+Key Offset: 1
+Msk: 0 Cmp: 0 MskLen 1
+String: b
+accel1_groups: 0000000000000000
+accel1: none
+accel0: none

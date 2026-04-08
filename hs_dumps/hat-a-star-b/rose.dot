@@ -1,0 +1,4 @@
+digraph G {
+0[label="<root>"];
+1[label="<^>"];
+}

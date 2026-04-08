@@ -1,0 +1,25 @@
+Component Tree for 0
+SEQUENCE (capture index 0) 
+  ASCII CLASS
+    t
+  ASCII CLASS
+    e
+  ASCII CLASS
+    s
+  ASCII CLASS
+    t
+  REPEAT (1, NoLimit) greedy
+    ASCII CLASS
+      [0-9]
+  ASCII CLASS
+    s
+  ASCII CLASS
+    t
+  ASCII CLASS
+    r
+  ASCII CLASS
+    i
+  ASCII CLASS
+    n
+  ASCII CLASS
+    g

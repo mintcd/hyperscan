@@ -1,0 +1,2 @@
+Index, Offset,Engine Type,States,Stream State,Bytecode Size,Kind,Notes
+0,576,"LimEx 32/0",4,1,768,INFIX,maxqlen=1;maxlag=4;miracles;counting_miracle:3s;

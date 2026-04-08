@@ -1,0 +1,16 @@
+digraph NFA {
+rankdir=LR;
+size="11.5,8"
+node [ shape = circle ];
+START [style=invis];
+0 [ width = 1, fixedsize = true, fontsize = 12, label = "0\nt\n\n" ];
+START -> 0 [ color = grey, label = "TOP 0" ];
+1 [ width = 1, fixedsize = true, fontsize = 12, label = "1\n[0-9]\n\n" ];
+2 [ width = 1, fixedsize = true, fontsize = 12, label = "2\ns\n\n" ];
+3 [ width = 1, fixedsize = true, fontsize = 12, label = "3\nt\n\n" ];
+3 [ shape = doublecircle ];
+0 -> 1;
+1 -> 1;
+1 -> 2;
+2 -> 3;
+}

@@ -99,3 +99,8 @@ pcre/pcre_stringpiece.h
 pcre/pcrecpparg.h
 pcre/stamp-h1
 pcre/test-driver
+
+
+build
+build_msvc
+dataset

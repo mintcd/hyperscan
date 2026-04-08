@@ -1,0 +1,44 @@
+Rose:
+
+mode:                : block
+properties           : pureLiteral
+dkey count           : 0
+som slot count       : 0
+som width            : 0 bytes
+rose count           : 0
+
+total engine size    : 832 bytes
+ - anchored matcher  : 0 bytes over 0 bytes
+ - floating matcher  : 224 bytes
+ - delay-rb matcher  : 0 bytes
+ - eod-anch matcher  : 0 bytes over last 0 bytes
+ - small-blk matcher : 0 bytes over 32 bytes
+ - role state table  : 0 bytes
+ - nfa info table    : 0 bytes
+state space required : 2 bytes
+ - history buffer    : 0 bytes
+ - exhaustion vector : 0 bytes
+ - logical vector    : 0 bytes
+ - combination vector: 0 bytes
+ - role state mmbit  : 0 bytes
+ - long lit matcher  : 0 bytes
+ - active array      : 0 bytes
+ - active rose       : 0 bytes
+ - anchored state    : 0 bytes
+ - nfa state         : 0 bytes
+ - (trans. nfa state): 0 bytes
+ - one whole bytes   : 0 bytes
+ - groups            : 1 bytes
+
+initial groups       : 0x0000000000000001
+floating groups      : 0x0000000000000001
+handled key count    : 0
+
+total literal count  : 1
+  delayed literals   : 0
+
+  minWidth                    : 1
+  minWidthExcludingBoundaries : 1
+  maxBiAnchoredWidth          : inf
+  minFloatLitMatchOffset      : 1
+  maxFloatingDelayedMatch     : 0

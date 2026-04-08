@@ -1,0 +1,13 @@
+digraph NFA {
+rankdir=LR;
+size="11.5,8"
+node [ shape = circle ];
+0 [ width = 1, fontsize = 12, label = "0:[START]" ]; 
+1 [ width = 1, fontsize = 12, label = "1:string" ]; 
+2 [ width = 1, fontsize = 12, label = "2:[ACCEPT 0]" ]; 
+3 [ width = 1, fontsize = 12, label = "3:test" ]; 
+0 -> 3 [label=""]
+1 -> 2 [label=""]
+3 -> 1 [label="graph 0
+INFIX"]
+}

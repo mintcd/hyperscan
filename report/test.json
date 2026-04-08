@@ -1,0 +1,38 @@
+{
+  "regex": "(ab)*cde(fg)*",
+  "roles": [
+    { "id": "root", "literal": "<none>" },
+    { "id": "anchored_root", "literal": "<none>" },
+    { "id": "role_2", "literal": "cdefg" },
+    { "id": "role_3", "literal": "cdefg" },
+    { "id": "role_4", "literal": "cde" }
+  ],
+  "FAs": [
+    {
+      "id": "fa_1",
+      "nodes": [
+        { "id": "0", "chars": "START" },
+        { "id": "1", "chars": "START_DOTSTAR" },
+        { "id": "2", "chars": "ACCEPT" },
+        { "id": "3", "chars": "ACCEPT_EOD" },
+        { "id": "4", "chars": "f" },
+        { "id": "5", "chars": "g" }
+      ],
+      "transitions": [
+        ["0", "1", ""],
+        ["0", "4", "tops:0"],
+        ["1", "1", ""],
+        ["2", "3", ""],
+        ["4", "5", ""],
+        ["5", "2", ""],
+        ["5", "4", ""]
+      ]
+    }
+  ],
+  "triggers": [
+    ["root", "role_2", "min:0 max:inf"],
+    ["root", "role_3", "min:0 max:inf"],
+    ["root", "role_4", "min:0 max:inf"],
+    ["role_2", "fa_1", "suffix top:0"]
+  ]
+}

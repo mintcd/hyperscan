@@ -35,6 +35,8 @@
 
 #if defined(DEBUG) || defined(DUMP_SUPPORT)
 #include "util/compare.h"
+// [MY NOTE] Add stdio for debugging
+#include <stdio.h>
 /** A debugging crutch: print a hex-escaped version of the match for our
  * perusal. The start and end offsets are stream offsets. */
 static UNUSED

@@ -1,0 +1,7 @@
+Component Tree for 0
+SEQUENCE (capture index 0) 
+  REPEAT (0, NoLimit) greedy
+    ASCII CLASS
+      a
+  ASCII CLASS
+    b

@@ -1,0 +1,5 @@
+ROSE LITERALS: a total of 1 literals and 3 roles.
+
+FLOATING ID 0/0: "b" (len 1, groups 0x0000000000000001, min offset 1 root literal) roles=1
+  Index 2: groups=0x0000000000000000, report={0}, min_offset=1, max_offset=4294967295
+    Predecessor index=ROOT: bounds [0, inf]

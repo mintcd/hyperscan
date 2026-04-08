@@ -5,21 +5,66 @@ if (NOT PCAP_LIBRARY)
 endif()
 
 add_executable(simplegrep simplegrep.c)
-set_source_files_properties(simplegrep.c PROPERTIES COMPILE_FLAGS
-    "-Wall -Wno-unused-parameter")
+if(MSVC)
+    set_source_files_properties(simplegrep.c PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(simplegrep.c PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
 target_link_libraries(simplegrep hs)
 
-if (PCAP_LIBRARY)
+add_executable(dump_nfa dump_nfa.cpp)
+if(MSVC)
+    set_source_files_properties(dump_nfa.cpp PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(dump_nfa.cpp PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
+target_link_libraries(dump_nfa hs)
+
+add_executable(dump_rose dump_rose.cpp)
+if(MSVC)
+    set_source_files_properties(dump_rose.cpp PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(dump_rose.cpp PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
+target_link_libraries(dump_rose hs)
+
+add_executable(dump dump.cpp)
+if(MSVC)
+    set_source_files_properties(dump.cpp PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(dump.cpp PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
+target_link_libraries(dump hs)
+
+if (PCAP_LIBRARY AND NOT WIN32)
 add_executable(pcapscan pcapscan.cc)
-set_source_files_properties(pcapscan.cc PROPERTIES COMPILE_FLAGS
-    "-Wall -Wno-unused-parameter")
+if(MSVC)
+    set_source_files_properties(pcapscan.cc PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(pcapscan.cc PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
 target_link_libraries(pcapscan hs pcap)
 endif()
 
-if (PCAP_LIBRARY)
+if (PCAP_LIBRARY AND NOT WIN32)
 add_executable(patbench patbench.cc)
-set_source_files_properties(patbench.cc PROPERTIES COMPILE_FLAGS
-    "-Wall -Wno-unused-parameter")
+if(MSVC)
+    set_source_files_properties(patbench.cc PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(patbench.cc PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
 target_link_libraries(patbench hs pcap)
 endif()
 

@@ -1,0 +1,6 @@
+digraph G {
+0[label="<root>"];
+1[label="<^>"];
+2[label="index=2\nlit=0/nofrag 'b'\nmin_offset=1, max_offset=inf\n\nACCEPT (rep=0)" color=blue ];
+0 -> 2 [label=".*"];
+}

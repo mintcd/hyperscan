@@ -1,0 +1,4 @@
+Component Tree for 0
+SEQUENCE (capture index 0) 
+  ASCII CLASS
+    b

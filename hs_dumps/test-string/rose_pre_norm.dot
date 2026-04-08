@@ -1,0 +1,8 @@
+digraph G {
+0[label="<root>"];
+1[label="<^>"];
+2[label="index=2\nlit=0/nofrag 'test'\nmin_offset=4, max_offset=inf\n"];
+3[label="index=3\nlit=1/nofrag 'string'\nmin_offset=11, max_offset=inf\n\nACCEPT (rep=0)\nINFIX (queue ??, report 0)" color=violetred  color=blue ];
+0 -> 2 [label=".*"];
+2 -> 3 [label=".*\nROSE TOP 0"];
+}

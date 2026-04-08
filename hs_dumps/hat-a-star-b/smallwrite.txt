@@ -1,0 +1,7 @@
+SmallWrite:
+
+McClellan 8
+States: 4
+Length: 560
+Largest Short Buffer: 35
+Start Offset: 0

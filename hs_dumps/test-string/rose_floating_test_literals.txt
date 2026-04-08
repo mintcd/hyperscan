@@ -1,0 +1,4 @@
+# id=0 groups=0x1
+0:/test/
+# id=1 msk=0xf0000000000000 cmp=0x30000000000000 groups=0x2
+1:/string/
