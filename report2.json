@@ -1,0 +1,52 @@
+{
+  "regex": "abcde",
+  "tree": {
+    "type": "Sequence",
+    "dump": "SEQUENCE (capture index 0) \n  ASCII CLASS\n    a\n  ASCII CLASS\n    b\n  ASCII CLASS\n    c\n  ASCII CLASS\n    d\n  ASCII CLASS\n    e\n",
+    "capture_index": 0,
+    "children": [
+      {
+        "type": "AsciiComponentClass",
+        "dump": "ASCII CLASS\n  a\n"
+      },
+      {
+        "type": "AsciiComponentClass",
+        "dump": "ASCII CLASS\n  b\n"
+      },
+      {
+        "type": "AsciiComponentClass",
+        "dump": "ASCII CLASS\n  c\n"
+      },
+      {
+        "type": "AsciiComponentClass",
+        "dump": "ASCII CLASS\n  d\n"
+      },
+      {
+        "type": "AsciiComponentClass",
+        "dump": "ASCII CLASS\n  e\n"
+      }
+    ]
+  },
+  "roles": [
+    {
+      "id": "root",
+      "literal": "<none>"
+    },
+    {
+      "id": "anchored_root",
+      "literal": "<none>"
+    },
+    {
+      "id": "role_2",
+      "literal": "abcde"
+    }
+  ],
+  "FAs": [],
+  "triggers": [
+    [
+      "root",
+      "role_2",
+      "<linear>"
+    ]
+  ]
+}

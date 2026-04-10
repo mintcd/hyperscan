@@ -170,7 +170,7 @@ static void decomposeGraphRec(const NGHolder &g, int depth = 0, int maxDepth = 3
     }
 }
 
-int main(int argc, char **argv) {
+int __cdecl main(int argc, char **argv) {
     if (argc < 2) {
         std::cerr << "Usage: dump_nfa <regex> [flags]\n";
         return 1;

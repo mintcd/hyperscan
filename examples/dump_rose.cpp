@@ -18,6 +18,13 @@
 #include "util/graph_range.h"
 #include "util/target_info.h"
 
+// Hyperscan internal headers for AST extraction
+#include "parser/Component.h"
+#include "parser/ComponentSequence.h"
+#include "parser/ComponentAlternation.h"
+#include "parser/ComponentRepeat.h"
+#include "parser/dump.h"
+
 #include <cctype>
 #include <exception>
 #include <iomanip>
@@ -143,6 +150,101 @@ static string escapeJsonString(const string& input) {
     return ss.str();
 }
 
+// Convert a Hyperscan AST Component to JSON using the public visitor API.
+static string astToJson(const ue2::Component *comp) {
+    if (!comp) return "null";
+
+    using namespace ue2;
+    ostringstream ss;
+
+    // Visitor that emits JSON for each component using the ConstComponentVisitor
+    // callbacks. This avoids accessing protected/private members directly.
+    class JsonVisitor : public ue2::DefaultConstComponentVisitor {
+        using ue2::DefaultConstComponentVisitor::pre;
+        using ue2::DefaultConstComponentVisitor::during;
+        using ue2::DefaultConstComponentVisitor::post;
+        ostringstream &ss;
+    public:
+        JsonVisitor(ostringstream &s) : ss(s) {}
+
+        void pre(const ue2::ComponentSequence &c) override {
+            std::ostringstream doss;
+            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
+            ss << "{ \"type\": \"Sequence\", \"dump\": \"" << escapeJsonString(doss.str()) << "\"";
+            unsigned idx = c.getCaptureIndex();
+            if (idx != ue2::ComponentSequence::NOT_CAPTURED) {
+                ss << ", \"capture_index\": " << idx;
+            } else {
+                ss << ", \"capture_index\": null";
+            }
+            const std::string &nm = c.getCaptureName();
+            if (!nm.empty()) ss << ", \"capture_name\": \"" << escapeJsonString(nm) << "\"";
+            ss << ", \"children\": [";
+        }
+        void during(const ue2::ComponentSequence &) override { ss << ", "; }
+        void post(const ue2::ComponentSequence &) override { ss << "] }"; }
+
+        void pre(const ue2::ComponentAlternation &c) override {
+            std::ostringstream doss;
+            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
+            ss << "{ \"type\": \"Alternation\", \"dump\": \"" << escapeJsonString(doss.str()) << "\", \"children\": [";
+        }
+        void during(const ue2::ComponentAlternation &) override { ss << ", "; }
+        void post(const ue2::ComponentAlternation &) override { ss << "] }"; }
+
+        void pre(const ue2::ComponentRepeat &c) override {
+            auto b = c.getBounds();
+            std::ostringstream doss;
+            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
+            ss << "{ \"type\": \"Repeat\", \"dump\": \"" << escapeJsonString(doss.str()) << "\", \"min\": " << b.first << ", \"max\": ";
+            if (b.second == ComponentRepeat::NoLimit) ss << "\"inf\"";
+            else ss << b.second;
+            ss << ", \"child\": ";
+        }
+        void post(const ue2::ComponentRepeat &) override { ss << " }"; }
+
+        // Leaf/default components: emit a simple type object.
+        void pre(const ue2::ComponentByte &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Byte\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentByte &) override { ss << " }"; }
+
+        
+
+        void pre(const ue2::ComponentEmpty &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Empty\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentEmpty &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentBoundary &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Boundary\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentBoundary &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentAssertion &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Assertion\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentAssertion &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentBackReference &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"BackReference\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentBackReference &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentCondReference &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"CondReference\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentCondReference &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentAtomicGroup &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"AtomicGroup\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentAtomicGroup &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentEUS &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"EUS\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentEUS &) override { ss << " }"; }
+
+        void pre(const ue2::ComponentWordBoundary &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"WordBoundary\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::ComponentWordBoundary &) override { ss << " }"; }
+
+        void pre(const ue2::AsciiComponentClass &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"AsciiComponentClass\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::AsciiComponentClass &) override { ss << " }"; }
+
+        void pre(const ue2::UTF8ComponentClass &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"UTF8ComponentClass\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void post(const ue2::UTF8ComponentClass &) override { ss << " }"; }
+    };
+
+    JsonVisitor v(ss);
+    comp->accept(v);
+    return ss.str();
+}
+
 static void printJsonReport(const string &pattern, const char *json_file) {
     using namespace ue2;
 
@@ -150,8 +252,17 @@ static void printJsonReport(const string &pattern, const char *json_file) {
     target_t current_target = get_current_target();
     CompileContext cc(false, false, current_target, grey);
 
+    // Extract AST
+    ParsedExpression pe(0, pattern.c_str(), 0, 0, nullptr);
+    string init_ast_json = astToJson(pe.component.get());
+
+    // pe.component->optimise(true /* root is connected to sds */);
+    // string last_ast_json = astToJson(pe.component.get());
+
     NG ng(cc, 1, 0);
     addExpression(ng, 0, pattern.c_str(), 0, nullptr, 0);
+
+    
 
     const auto *build = dynamic_cast<const RoseBuildImpl *>(ng.rose.get());
     if (!build) {
@@ -172,6 +283,8 @@ static void printJsonReport(const string &pattern, const char *json_file) {
 
     cout << "{\n";
     cout << "  \"regex\": \"" << escapeJsonString(pattern) << "\",\n";
+    cout << "  \"tree\": " << init_ast_json << ",\n";
+    // cout << "  \"last_ast\": " << last_ast_json << ",\n";
 
     // 1. Literals (Roles)
     cout << "  \"roles\": [\n";

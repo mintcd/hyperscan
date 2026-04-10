@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Regex / NFA Decomposition — Mermaid Preview</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+    }
+
+    #controls {
+      margin-bottom: 1rem;
+    }
+
+    .mermaid {
+      background: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Regex / NFA Decomposition</h1>
+  <div id="controls">
+    <button id="download">Download SVG</button>
+    <a id="raw" href="regex-decomposition.md">View source (Markdown)</a>
+  </div>
+
+  <!-- Mermaid diagram (no backticks) -->
+  <div class="mermaid" id="diagram">
+    flowchart LR
+    %% Input
+    A["Rose graph (NGHolder)"] --> B["getCandidatePivots (findDominators)"]
+
+    %% Split selection
+    B --> C["findBestSplit"]
+    C --> C1["getSimpleRoseLiterals"]
+    C --> C2["getRegionRoseLiterals"]
+
+    %% Literal extraction & scoring
+    C1 --> L["getLiteralSet"]
+    C2 --> L
+    L --> W["processWorkQueue"]
+    W --> X["compressAndScore"]
+    X --> Xcut["LitGraph min-cut"]
+
+    %% Prefix handling
+    C --> Pfx["findBestPrefixSplit"]
+    Pfx --> Pfx2["findSimplePrefixSplit"]
+
+    %% Netflow (fallback / wider cut)
+    C --> N["doNetflowCut"]
+    N --> N1["poisonEdges / poisonFromSuccessor"]
+    N --> S["scoreEdges"]
+    S --> L
+    N --> NF["findMinCut (netflow)"]
+    NF --> SC["splitEdgesByCut"]
+
+    %% Direct splitting path
+    C --> R["splitRoseEdge"]
+    R --> Match["can_match"]
+    R --> SG["splitGraph"]
+    SG --> LHS["splitLHS"]
+    SG --> RHS["splitRHS"]
+
+    %% Wiring the outputs
+    SC --> LHS
+    SC --> RHS
+
+    subgraph Literal_analysis
+    direction TB
+    L
+    W
+    X
+    Xcut
+    end
+
+    subgraph Netflow_MinCut
+    direction TB
+    N
+    S
+    NF
+    N1
+    end
+
+    subgraph Splitting_cloning
+    direction TB
+    R
+    SG
+    LHS
+    RHS
+    Match
+    SC
+    end
+  </div>
+
+  <p>Click <strong>Download SVG</strong> to generate and save an SVG of the diagram.</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.0/dist/mermaid.min.js"></script>
+  <script>
+    // Initialize mermaid
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+    document.getElementById('download').addEventListener('click', function () {
+      const code = document.getElementById('diagram').textContent.trim();
+      // render to SVG using mermaid API
+      mermaid.mermaidAPI.render('generatedGraph', code, function (svgCode) {
+        const blob = new Blob([svgCode], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'regex-decomposition.svg';
+        document.body.appendChild(a)

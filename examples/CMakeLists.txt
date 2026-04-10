@@ -33,6 +33,7 @@ else()
         "-Wall -Wno-unused-parameter")
 endif()
 target_link_libraries(dump_rose hs)
+target_include_directories(dump_rose PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_executable(dump dump.cpp)
 if(MSVC)

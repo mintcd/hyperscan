@@ -104,3 +104,4 @@ pcre/test-driver
 build
 build_msvc
 dataset
+output
