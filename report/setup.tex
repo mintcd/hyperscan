@@ -1,0 +1,210 @@
+% Common LaTeX setup for all exercises
+% This file contains all shared packages and commands
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amscd}
+\usepackage{vmargin}
+\usepackage{mathrsfs,color,comment}
+\usepackage{multirow}
+\usepackage{cases}
+\usepackage{xfrac}
+\usepackage{amsthm}
+\usepackage{parskip}
+\usepackage{mathtools}
+\usepackage{xparse}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{bm}
+
+% Customize algorithm keywords
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% Customize end keywords to be single words
+\algdef{SE}[FOR]{For}{EndFor}[1]{\algorithmicfor\ #1\ \algorithmicdo}{\textbf{endfor}}
+\algdef{SE}[WHILE]{While}{EndWhile}[1]{\algorithmicwhile\ #1\ \algorithmicdo}{\textbf{endwhile}}
+\algdef{SE}[IF]{If}{EndIf}[1]{\algorithmicif\ #1\ \algorithmicthen}{\textbf{endif}}
+
+\usepackage{biblatex}
+\usepackage{listings}
+\usepackage{matlab-prettifier}
+\usepackage{marvosym}
+\usepackage{subcaption}
+\usepackage{enumerate}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usepackage{dsfont}
+\usepackage{hyperref}
+
+\definecolor{gustave}{HTML}{1d2392}
+% TikZ libraries
+\usetikzlibrary{arrows.meta, automata,positioning, calc}
+
+% Margins
+\setmarginsrb{2.5cm}{2cm}{2.5cm}{3cm}{0cm}{0cm}{0cm}{0cm}
+
+% Add space for page numbers to prevent them from touching content
+\setlength{\footskip}{2cm}
+
+% Theorem environments
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem*{lemmas}{Lemmas}
+
+% Custom commands
+\newcommand\norm[1]{\left\lVert#1\right\rVert}
+\newcommand\sym{\mathcal{S}}
+
+\definecolor{myblue}{HTML}{4478a4}
+
+\newcommand{\scrP}{\mathscr{P}}
+\newcommand{\tr}{\mathrm{tr}}
+
+% Blackboard bold commands
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\WW}{\mathbb{W}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\TT}{\mathbb{T}}
+\newcommand{\YY}{\mathbb{Y}}
+\newcommand{\UU}{\mathbb{U}}
+\newcommand{\II}{\mathbf{1}}
+\newcommand{\OO}{\mathbb{O}}
+\newcommand{\PP}{\mathbb{P}}
+\renewcommand{\AA}{\mathbb{A}}
+\renewcommand{\SS}{\mathbb{S}}
+\newcommand{\DD}{\mathbb{D}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\GG}{\mathbb{G}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\JJ}{\mathbb{J}}
+\newcommand{\KK}{\mathbb{K}}
+\newcommand{\LL}{\mathbb{L}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\XX}{\mathbb{X}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\VV}{\mathbb{V}}
+\newcommand{\BB}{\mathbb{B}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\MM}{\mathbb{M}}
+
+% Calligraphic commands
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\K}{\mathcal{K}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\W}{\mathcal{W}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\Z}{\mathcal{Z}}
+
+% Script commands
+\newcommand{\Ac}{\mathscr{A}}
+\newcommand{\Bc}{\mathscr{B}}
+\newcommand{\Cc}{\mathscr{C}}
+\newcommand{\Dc}{\mathscr{D}}
+\newcommand{\Ec}{\mathscr{E}}
+\newcommand{\Fc}{\mathscr{F}}
+\newcommand{\Gc}{\mathscr{G}}
+\newcommand{\Hc}{\mathscr{H}}
+\newcommand{\Ic}{\mathscr{I}}
+\newcommand{\Jc}{\mathscr{J}}
+\newcommand{\Kc}{\mathscr{K}}
+\newcommand{\Lc}{\mathscr{L}}
+\newcommand{\Mc}{\mathscr{M}}
+\newcommand{\Nc}{\mathscr{N}}
+\newcommand{\Oc}{\mathscr{O}}
+\newcommand{\Pc}{\mathscr{P}}
+\newcommand{\Qc}{\mathscr{Q}}
+\newcommand{\Rc}{\mathscr{R}}
+\newcommand{\Sc}{\mathscr{S}}
+\newcommand{\Tc}{\mathscr{T}}
+\newcommand{\Uc}{\mathscr{U}}
+\newcommand{\Vc}{\mathscr{V}}
+\newcommand{\Wc}{\mathscr{W}}
+\newcommand{\Xc}{\mathscr{X}}
+\newcommand{\Yc}{\mathscr{Y}}
+\newcommand{\Zc}{\mathscr{Z}}
+
+
+% Exercise counters and commands
+\newcounter{exo}
+\newcounter{parti}
+
+\def\exercice%
+{\stepcounter{exo}\noindent{\bf Exercise \arabic{parti}.\arabic{exo}.} \ }%
+{\vspace{0,3cm}}
+
+\def\partie%
+{\stepcounter{parti} \noindent {\bf \arabic{parti}.} --- }%
+{\vspace{0,3cm}}
+
+\def\exercices%
+{\noindent{\bf Exercises.} \ }%
+{\vspace{0,3cm}}
+
+% Additional math commands
+\def\NN{{\mathbb{N}}}
+\def\ZZ{{\mathbb{Z}}}
+\def\QQ{{\mathbb{Q}}}
+\def\RR{{\mathbb{R}}}
+\def\CC{{\mathbb{C}}}
+
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\im}{\mathrm{Im}}
+
+\NewDocumentCommand{\myarrow}{sm}{
+  \IfBooleanTF{#1}{
+    \xrightarrow{#2}
+  }{
+    \xrightarrow{\mathmakebox[\minarrow]{#2}}
+  }
+}
+\renewcommand{\arraystretch}{2}
+
+% Page style and formatting
+\pagestyle{plain}
+\setlength{\parindent}{0em}
+
+% Matrix environment customization
+\makeatletter
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}}
+\makeatother
+\def\env@matrix{\hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols c}}
+
+% Algorithm customization
+\makeatletter
+% Reinsert missing \algbackskip
+\def\algbackskip{\hskip-\ALG@thistlm}
+\makeatother
+
+
+% Bibliography setup
+\addbibresource{refs.bib}

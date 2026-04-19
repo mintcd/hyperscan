@@ -72,6 +72,12 @@ public:
     std::vector<PositionInfo> first(void) const override;
     std::vector<PositionInfo> last(void) const override;
 
+    /** 
+     * Expose the internal CharReach for read-only inspection.
+     * This avoids having to parse the textual dump produced by dumpTree().
+     */
+    const CharReach &getCharReach() const { return cr; }
+
 protected:
     void createRange(unichar to) override;
 

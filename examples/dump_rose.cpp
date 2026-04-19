@@ -17,6 +17,10 @@
 #include "rose/rose_program.h"
 #include "util/graph_range.h"
 #include "util/target_info.h"
+#include "util/dump_charclass.h"
+#include "utils/string_processing.h"
+#include "util/container.h"
+#include "nfagraph/ng_reports.h"
 
 // Hyperscan internal headers for AST extraction
 #include "parser/Component.h"
@@ -24,6 +28,7 @@
 #include "parser/ComponentAlternation.h"
 #include "parser/ComponentRepeat.h"
 #include "parser/dump.h"
+#include "parser/AsciiComponentClass.h"
 
 #include <cctype>
 #include <exception>
@@ -39,6 +44,12 @@
 #ifdef _WIN32
 #undef min
 #undef max
+#endif
+
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
 #endif
 
 using namespace std;
@@ -87,67 +98,27 @@ static string indentStr(int level) {
     return string(level * 2, ' ');
 }
 
-static string formatCharReachSimple(const ue2::CharReach &cr) {
-    using ue2::CharReach;
-    if (cr.none()) {
-        return "none";
-    }
-    if (cr.all()) {
-        return "any";
-    }
+// `formatCharReachSimple` and `escapeJsonString` moved to
+// examples/utils/string_processing.{h,cpp}
 
-    ostringstream os;
-    bool first = true;
-    for (size_t i = cr.find_first(); i != CharReach::npos;) {
-        size_t j = i;
-        while (true) {
-            size_t n = cr.find_next(j);
-            if (n == CharReach::npos || n != j + 1) {
-                break;
-            }
-            j = n;
-        }
-
-        if (!first) {
-            os << ",";
-        }
-        first = false;
-
-        if (i == j) {
-            unsigned c = (unsigned)i;
-            if (isprint(c) && c != '\\' && c != '"') {
-                os << (char)c;
-            } else {
-                os << "0x" << hex << setw(2) << setfill('0') << c << dec;
-            }
-        } else {
-            os << "0x" << hex << setw(2) << setfill('0') << (unsigned)i
-               << "-0x" << setw(2) << (unsigned)j << dec;
-        }
-
-        i = cr.find_next(j);
-    }
-
-    return os.str();
-}
-
-static string escapeJsonString(const string& input) {
-    ostringstream ss;
-    for (unsigned char c : input) {
-        if (c == '"') ss << "\\\"";
-        else if (c == '\\') ss << "\\\\";
-        else if (c == '\b') ss << "\\b";
-        else if (c == '\f') ss << "\\f";
-        else if (c == '\n') ss << "\\n";
-        else if (c == '\r') ss << "\\r";
-        else if (c == '\t') ss << "\\t";
-        else if (c < 0x20) {
-            ss << "\\u" << hex << setw(4) << setfill('0') << (int)c << dec;
-        } else {
-            ss << c;
+// Cross-platform create_directories helper (creates all components of a path)
+static void create_directories(const string &path) {
+    string temp;
+    for (size_t i = 0; i < path.length(); ++i) {
+        temp += path[i];
+        if (path[i] == '/' || path[i] == '\\') {
+#ifdef _WIN32
+            _mkdir(temp.c_str());
+#else
+            mkdir(temp.c_str(), 0777);
+#endif
         }
     }
-    return ss.str();
+#ifdef _WIN32
+    _mkdir(temp.c_str());
+#else
+    mkdir(temp.c_str(), 0777);
+#endif
 }
 
 // Convert a Hyperscan AST Component to JSON using the public visitor API.
@@ -168,9 +139,9 @@ static string astToJson(const ue2::Component *comp) {
         JsonVisitor(ostringstream &s) : ss(s) {}
 
         void pre(const ue2::ComponentSequence &c) override {
-            std::ostringstream doss;
-            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
-            ss << "{ \"type\": \"Sequence\", \"dump\": \"" << escapeJsonString(doss.str()) << "\"";
+            // std::ostringstream doss;
+            // ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
+            ss << "{ \"type\": \"Sequence\"";
             unsigned idx = c.getCaptureIndex();
             if (idx != ue2::ComponentSequence::NOT_CAPTURED) {
                 ss << ", \"capture_index\": " << idx;
@@ -185,23 +156,16 @@ static string astToJson(const ue2::Component *comp) {
         void post(const ue2::ComponentSequence &) override { ss << "] }"; }
 
         void pre(const ue2::ComponentAlternation &c) override {
-            std::ostringstream doss;
-            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
-            ss << "{ \"type\": \"Alternation\", \"dump\": \"" << escapeJsonString(doss.str()) << "\", \"children\": [";
+            
+            ss << "{ \"type\": \"Alternation\", \"children\": [";
         }
         void during(const ue2::ComponentAlternation &) override { ss << ", "; }
         void post(const ue2::ComponentAlternation &) override { ss << "] }"; }
 
         void pre(const ue2::ComponentRepeat &c) override {
-            auto b = c.getBounds();
-            std::ostringstream doss;
-            ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
-            ss << "{ \"type\": \"Repeat\", \"dump\": \"" << escapeJsonString(doss.str()) << "\", \"min\": " << b.first << ", \"max\": ";
-            if (b.second == ComponentRepeat::NoLimit) ss << "\"inf\"";
-            else ss << b.second;
-            ss << ", \"child\": ";
+            ss << "{ \"type\": \"Repeat\", \"children\": [";
         }
-        void post(const ue2::ComponentRepeat &) override { ss << " }"; }
+        void post(const ue2::ComponentRepeat &) override { ss << "] }"; }
 
         // Leaf/default components: emit a simple type object.
         void pre(const ue2::ComponentByte &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Byte\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
@@ -233,7 +197,55 @@ static string astToJson(const ue2::Component *comp) {
         void pre(const ue2::ComponentWordBoundary &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"WordBoundary\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
         void post(const ue2::ComponentWordBoundary &) override { ss << " }"; }
 
-        void pre(const ue2::AsciiComponentClass &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"AsciiComponentClass\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
+        void pre(const ue2::AsciiComponentClass &c) override {
+            const ue2::CharReach &cr = c.getCharReach();
+
+            if (cr.none()) {
+                ss << "{ \"type\": \"AsciiComponentClass\", \"chars\": []";
+                return;
+            }
+
+            // Single-character literal -> emit Literal node
+            if (cr.count() == 1) {
+                unsigned ch = (unsigned)cr.find_first();
+                std::ostringstream tmp;
+                if (isprint(ch) && ch != '\\' && ch != '"') tmp << (char)ch;
+                else tmp << "\\x" << std::hex << std::setw(2) << std::setfill('0') << ch << std::dec;
+                ss << "{ \"type\": \"Literal\", \"value\": \"" << escapeJsonString(tmp.str()) << "\"";
+                return;
+            }
+
+            // Check for a contiguous range -> emit Range node
+            size_t first = cr.find_first();
+            size_t last = first;
+            size_t it = first;
+            bool contiguous = true;
+            while ((it = cr.find_next(it)) != ue2::CharReach::npos) {
+                if (it != last + 1) { contiguous = false; break; }
+                last = it;
+            }
+
+            if (contiguous) {
+                std::ostringstream a, b;
+                a << "0x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)first << std::dec;
+                b << "0x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)last << std::dec;
+                ss << "{ \"type\": \"Range\", \"value\": [\"" << a.str() << "\", \"" << b.str() << "\"]";
+                return;
+            }
+
+            // Otherwise, enumerate characters
+            ss << "{ \"type\": \"AsciiComponentClass\", \"chars\": [";
+            bool first_out = true;
+            for (size_t j = cr.find_first(); j != ue2::CharReach::npos; j = cr.find_next(j)) {
+                if (!first_out) ss << ", ";
+                first_out = false;
+                std::ostringstream tmp;
+                if (isprint((int)j) && j != '\\' && j != '"') tmp << (char)j;
+                else tmp << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)j << std::dec;
+                ss << "\"" << escapeJsonString(tmp.str()) << "\"";
+            }
+            ss << "]";
+        }
         void post(const ue2::AsciiComponentClass &) override { ss << " }"; }
 
         void pre(const ue2::UTF8ComponentClass &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"UTF8ComponentClass\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
@@ -274,6 +286,13 @@ static void printJsonReport(const string &pattern, const char *json_file) {
     ofstream ofs;
     streambuf *orig_buf = nullptr;
     if (json_file) {
+        // Ensure parent directory exists so opening the JSON file won't fail
+        string out_path(json_file);
+        size_t pos = out_path.find_last_of("/\\");
+        if (pos != string::npos) {
+            string parent = out_path.substr(0, pos);
+            create_directories(parent);
+        }
         ofs.open(json_file);
         if (!ofs.is_open()) {
             throw runtime_error("Unable to open output JSON file");
@@ -306,8 +325,28 @@ static void printJsonReport(const string &pattern, const char *json_file) {
         if (lit_str.empty()) lit_str = "<none>";
 
         if (!first_lit) cout << ",\n";
-        cout << "    { \"id\": \"" << escapeJsonString(role_id) 
-             << "\", \"literal\": \"" << escapeJsonString(lit_str) << "\" }";
+        cout << "    { \"id\": \"" << escapeJsonString(role_id)
+             << "\", \"literal\": \"" << escapeJsonString(lit_str) << "\"";
+
+        // Print direct reports attached to this role (if any)
+        if (!vp.reports.empty()) {
+            cout << ", \"reports\": [" << ue2::as_string_list(vp.reports) << "]";
+        }
+
+        // If this role has a left (verification) FA, print its reports
+        if (vp.left && vp.left.graph) {
+            ue2::left_id l(vp.left);
+            cout << ", \"left_reports\": [" << ue2::as_string_list(ue2::all_reports(l)) << "]";
+        }
+
+        // If this role has a suffix FA, print its top and all reports
+        if (vp.suffix && vp.suffix.graph) {
+            ue2::suffix_id s(vp.suffix);
+            cout << ", \"suffix_top\": " << vp.suffix.top;
+            cout << ", \"suffix_reports\": [" << ue2::as_string_list(ue2::all_reports(s)) << "]";
+        }
+
+        cout << " }";
         first_lit = false;
     }
     cout << "\n  ],\n";
@@ -347,6 +386,7 @@ static void printJsonReport(const string &pattern, const char *json_file) {
 
         cout << "    {\n";
         cout << "      \"id\": \"" << fa_ids[h] << "\",\n";
+        cout << "      \"reports\": [" << ue2::as_string_list(ue2::all_reports(*h)) << "],\n";
         
         // Nodes
         cout << "      \"nodes\": [\n";

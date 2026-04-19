@@ -1,0 +1,1 @@
+1. Given a BST-like distribution. Count the number of subtree whose all nodes are concatenate.

@@ -112,4 +112,13 @@
         const a = document.createElement('a');
         a.href = url;
         a.download = 'regex-decomposition.svg';
-        document.body.appendChild(a)
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    });
+  </script>
+</body>
+
+</html>

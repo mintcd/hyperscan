@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["Hyperscan", "MSVC"],
+  "cSpell.words": ["Hyperscan", "MSVC", "Standardizer"],
   "cSpell.ignorePaths": [
     "package-lock.json",
     "node_modules",
@@ -10,6 +10,14 @@
     ".vscode-insiders",
     ".gitignore",
     "*.json",
-    "*.dot"
+    "*.dot",
+    "*.c"
+  ],
+  "python-envs.pythonProjects": [
+    {
+      "path": ".",
+      "envManager": "ms-python.python:conda",
+      "packageManager": "ms-python.python:conda"
+    }
   ]
 }

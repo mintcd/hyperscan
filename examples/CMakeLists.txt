@@ -24,7 +24,7 @@ else()
 endif()
 target_link_libraries(dump_nfa hs)
 
-add_executable(dump_rose dump_rose.cpp)
+add_executable(dump_rose dump_rose.cpp utils/string_processing.cpp)
 if(MSVC)
     set_source_files_properties(dump_rose.cpp PROPERTIES COMPILE_FLAGS
         "/wd4100")

@@ -1,3 +1,450 @@
+CMake is re-running because D:/Projects/hyperscan/build_msvc/examples/CMakeFiles/generate.stamp is out-of-date.
+  the file 'D:/Projects/hyperscan/examples/CMakeLists.txt'
+  is newer than 'D:/Projects/hyperscan/build_msvc/examples/CMakeFiles/generate.stamp.depend'
+  result='-1'
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:517 (find_program):
+  find_program called with the following settings:
+
+    VAR: PKG_CONFIG_EXECUTABLE
+    NAMES: 
+    Documentation: pkg-config executable
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/anaconda3/Library/bin/pkg-config.exe
+
+Call Stack (most recent call first):
+  CMakeLists.txt:31 (find_package)
+
+
+CMake Debug Log at CMakeLists.txt:31 (find_package):
+  find_package considered the following paths for FindPkgConfig.cmake:
+
+    D:/Projects/hyperscan/cmake/FindPkgConfig.cmake
+
+  The file was found at
+
+    C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake
+
+
+
+-- Build type RELWITHDEBINFO
+-- using release build
+CMake Debug Log at C:/Users/DELL/anaconda3/Library/lib/cmake/Boost-1.82.0/BoostConfig.cmake:141 (find_package):
+    C:/Users/DELL/anaconda3/Library/lib/cmake/boost_headers-1.82.0/boost_headersConfig.cmake
+    C:/Users/DELL/anaconda3/Library/lib/cmake/boost_headers-1.82.0/boost_headers-config.cmake
+
+Call Stack (most recent call first):
+  C:/Users/DELL/anaconda3/Library/lib/cmake/Boost-1.82.0/BoostConfig.cmake:215 (boost_find_component)
+  cmake/boost.cmake:17 (find_package)
+  CMakeLists.txt:80 (include)
+
+
+CMake Debug Log at cmake/boost.cmake:17 (find_package):
+  find_package considered the following paths for FindBoost.cmake:
+
+    D:/Projects/hyperscan/cmake/FindBoost.cmake
+
+  The file was found at
+
+    C:/Program Files/CMake/share/cmake-4.2/Modules/FindBoost.cmake
+    C:/Users/DELL/anaconda3/Library/lib/cmake/Boost-1.82.0/BoostConfig.cmake
+
+Call Stack (most recent call first):
+  CMakeLists.txt:80 (include)
+
+
+-- Boost version: 1.82.0
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPython/Support.cmake:2437 (find_program):
+  find_program called with the following settings:
+
+    VAR: _Python_EXECUTABLE_DEBUG
+    NAMES: "python3.11_d"
+           "python3_d"
+           "python_d"
+    Documentation: Path to a program.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    NO_DEFAULT_PATH Enabled
+
+  find_program considered the following locations:
+
+    C:/Users/DELL/anaconda3/python3.11_d.com
+    C:/Users/DELL/anaconda3/python3.11_d.exe
+    C:/Users/DELL/anaconda3/python3.11_d
+    C:/Users/DELL/anaconda3/python3_d.com
+    C:/Users/DELL/anaconda3/python3_d.exe
+    C:/Users/DELL/anaconda3/python3_d
+    C:/Users/DELL/anaconda3/python_d.com
+    C:/Users/DELL/anaconda3/python_d.exe
+    C:/Users/DELL/anaconda3/python_d
+
+  The item was not found.
+
+Call Stack (most recent call first):
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPython.cmake:721 (include)
+  CMakeLists.txt:83 (find_package)
+
+
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPython/Support.cmake:2443 (find_program):
+  find_program called with the following settings:
+
+    VAR: _Python_EXECUTABLE_DEBUG
+    NAMES: "python3.11_d"
+           "python3_d"
+           "python_d"
+    Documentation: Path to a program.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 0
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 0
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was not found.
+
+Call Stack (most recent call first):
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPython.cmake:721 (include)
+  CMakeLists.txt:83 (find_package)
+
+
+CMake Debug Log at CMakeLists.txt:83 (find_package):
+  find_package considered the following paths for FindPython.cmake:
+
+    D:/Projects/hyperscan/cmake/FindPython.cmake
+
+  The file was found at
+
+    C:/Program Files/CMake/share/cmake-4.2/Modules/FindPython.cmake
+
+
+
+CMake Debug Log at CMakeLists.txt:84 (find_program):
+  find_program called with the following settings:
+
+    VAR: RAGEL
+    NAMES: 
+    Documentation: Path to a program.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/scoop/shims/ragel.exe
+
+
+
+-- Build date: 2026-04-15
+-- Building static libraries
+-- Building for Windows
+-- Building without AVX512 support
+-- Building without AVX512VBMI support
+-- Building for current host CPU: 
+CMake Debug Log at doc/dev-reference/CMakeLists.txt:1 (find_program):
+  find_program called with the following settings:
+
+    VAR: DOXYGEN
+    NAMES: 
+    Documentation: Path to a program.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/scoop/shims/doxygen.exe
+
+
+
+CMake Debug Log at doc/dev-reference/CMakeLists.txt:14 (find_program):
+  find_program called with the following settings:
+
+    VAR: SPHINX_BUILD
+    NAMES: 
+    Documentation: Path to a program.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/anaconda3/Scripts/sphinx-build.exe
+
+
+
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:517 (find_program):
+  find_program called with the following settings:
+
+    VAR: PKG_CONFIG_EXECUTABLE
+    NAMES: 
+    Documentation: pkg-config executable
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_program considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/anaconda3/Library/bin/pkg-config.exe
+
+Call Stack (most recent call first):
+  cmake/pcre.cmake:54 (find_package)
+  CMakeLists.txt:549 (include)
+
+
+CMake Debug Log at cmake/pcre.cmake:54 (find_package):
+  find_package considered the following paths for FindPkgConfig.cmake:
+
+    D:/Projects/hyperscan/cmake/FindPkgConfig.cmake
+
+  The file was found at
+
+    C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake
+
+Call Stack (most recent call first):
+  CMakeLists.txt:549 (include)
+
+
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:761 (find_library):
+  find_library called with the following settings:
+
+    VAR: pkgcfg_lib_PCRE_pcre
+    NAMES: 
+    Documentation: Path to a library.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_library considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/anaconda3/Library/lib/pcre.lib
+
+Call Stack (most recent call first):
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:811 (_pkg_find_libs)
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:1174 (_pkg_recalculate)
+  cmake/pcre.cmake:55 (pkg_check_modules)
+  CMakeLists.txt:549 (include)
+
+
+CMake Debug Log at C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:765 (find_library):
+  find_library called with the following settings:
+
+    VAR: pkgcfg_lib_PCRE_pcre
+    NAMES: 
+    Documentation: Path to a library.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_library considered the following locations:
+
+  The item was found at
+
+    C:/Users/DELL/anaconda3/Library/lib/pcre.lib
+
+Call Stack (most recent call first):
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:811 (_pkg_find_libs)
+  C:/Program Files/CMake/share/cmake-4.2/Modules/FindPkgConfig.cmake:1174 (_pkg_recalculate)
+  cmake/pcre.cmake:55 (pkg_check_modules)
+  CMakeLists.txt:549 (include)
+
+
+-- PCRE version 8.41 or above
+CMake Debug Log at tools/CMakeLists.txt:1 (find_package):
+  find_package considered the following paths for FindThreads.cmake:
+
+    D:/Projects/hyperscan/cmake/FindThreads.cmake
+
+  The file was found at
+
+    C:/Program Files/CMake/share/cmake-4.2/Modules/FindThreads.cmake
+
+
+
+-- looking for sqlite3 in source tree
+--   no sqlite3 in source tree
+-- sqlite3 not found, not building hsbench
+CMake Debug Log at examples/CMakeLists.txt:1 (find_library):
+  find_library called with the following settings:
+
+    VAR: PCAP_LIBRARY
+    NAMES: "pcap"
+    Documentation: Path to a library.
+    Framework
+      Only Search Frameworks: 0
+      Search Frameworks Last: 0
+      Search Frameworks First: 0
+    AppBundle
+      Only Search AppBundle: 0
+      Search AppBundle Last: 0
+      Search AppBundle First: 0
+    CMAKE_FIND_USE_CMAKE_PATH: 1
+    CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: 1
+    CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: 1
+    CMAKE_FIND_USE_INSTALL_PREFIX: 1
+
+  find_library considered the following locations:
+
+    C:/Program Files/PowerShell/7//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Roaming/Code/User/globalStorage/github.copilot-chat/debugCommand//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Roaming/Code/User/globalStorage/github.copilot-chat/copilotCli//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Local/Programs/Microsoft VS Code//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Python312/Scripts//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Python312//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/R/R-4.3.3/bin/x64//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/Git/cmd//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/dotnet//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/Git LFS//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/ProgramData/chocolatey/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    D:/Applications/flutter/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/Java/jdk-20/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/texlive/2024/bin/windows//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Windows/System32//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Windows//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Windows/System32/wbem//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Windows/System32/WindowsPowerShell/v1.0//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Windows/System32/OpenSSH//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/MATLAB/R2023b/bin/win64//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/Docker/Docker/resources/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/CMake/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files (x86)/Intel/oneAPI/vtune/latest/bin64//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/scoop/shims//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/anaconda3//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/anaconda3/Library/mingw-w64/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/anaconda3/Library/usr/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/anaconda3/Library/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/anaconda3/Scripts//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Local/Microsoft/WindowsApps//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Local/Programs/Microsoft VS Code/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/texlive/2023/bin/windows//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Roaming/nvm//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/nodejs//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/.dotnet/tools//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/texlive/2024/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/ProgramData/mingw64/mingw64/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/AppData/Local/Pandoc//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Users/DELL/.vscode/extensions/ms-python.debugpy-2025.18.0-win32-x64/bundled/scripts/noConfigScripts//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/lib//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files (x86)/lib//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files (x86)//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/CMake/lib//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/CMake//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/hyperscan/lib//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/hyperscan//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    C:/Program Files/hyperscan/bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+    /bin//(|lib)pcap(\.dll\.lib|\.lib|\.a)
+
+  The item was not found.
+
+
+
+-- Could not find libpcap - some examples will not be built
+-- Configuring done (1.1s)
+-- Generating done (2.6s)
+-- Build files have been written to: D:/Projects/hyperscan/build_msvc
 MSBuild version 17.14.40+3e7442088 for .NET Framework
 
   hs_compile.vcxproj -> D:\Projects\hyperscan\build_msvc\hs_compile.dir\RelWithDebInfo\hs_compile.lib

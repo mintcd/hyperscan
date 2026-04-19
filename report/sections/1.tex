@@ -1,0 +1,260 @@
+\begin{center}
+  \vspace{1em}
+  \textbf{\LARGE A First Analysis of the FDR String Matcher}\\
+  \vspace{1em}
+\end{center}
+
+We extract a pseudocode of a simplified version of FDR for later analysis. A Python implementation so that we can inject instruction counter is also given in the \href{https://github.com/mintcd/string-matchers/tree/main/src/py_fdr}{repository}. We begin with the pseudocode. Then we solve special cases and try to formulate the problem in a more general way.
+
+\section{Pseudocode}
+
+The algorithm extends Shift-Or algorithm for multiple patterns. The conventions are as follows. The number of bits of a character is $8$. There are $8$ buckets $B_0, \ldots, B_7$. Each register is of size $128$ bits. We access the bit indices in a register and the character positions in a string \textit{right to left}.
+
+The compilation phase takes a list of patterns, put them into buckets and builds a mask for each character. The mask for a character $c$ is a bitmask of size $128$ where the left-most $64$ bits are set to $0$. In the right-most $64$ bits, the $(8i+j)$-th bit $(0\le i,j\le 7)$ is set to $0$ if either
+
+\begin{enumerate}[(i)]
+  \item $c$ appears in position $i$ (indexing from the right) of a pattern in bucket $B_j$, or
+  \item bucket $B_j$ is not empty and patterns in $B_j$ have length less than or equal to $i$. In this case it is called a \textit{padding bit}.
+\end{enumerate}
+
+Otherwise, the bit is set to $1$.
+
+For example, consider the buckets $[[ab,bc],[abc],[],[],[],[],[],[]]$. Then the mask for each character is as follows. The padding bits are in bold.
+\begin{align*}
+  M[a] & = \underbrace{00\ldots00}_{64}\,\, 11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,1111110\textbf{0} \,\, 11111110\,\,11111111  \\
+  M[b] & = \underbrace{00\ldots00}_{64}\,\, 11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,1111111\textbf{0} \,\, 11111100\,\,11111110  \\
+  M[c] & = \underbrace{00\ldots00}_{64}\,\, 11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,1111111\textbf{0} \,\, 11111111\,\,11111101  \\
+  M[x] & = \underbrace{00\ldots00}_{64}\,\, 11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,11111\textbf{00}\,\,1111111\textbf{0} \,\, 11111111\,\,11111111.
+\end{align*}
+
+In the masks above, $x$ is any character rather than $a,b,c$.
+
+The execution phase takes a text and the data structure built in the compilation phase. It maintains a state mask $R$. It is better to interpret the bits in $R$ as follows. Each iteration processes $8$ bytes. At iteration $\texttt{ITER}$, the $(8i+j)$ bit $(0\le i\le 15, 0 \le j \le 7)$ is $0$ means that there is currently \textit{no contradiction} that there is a match of a pattern in bucket $B_j$ ending at position $8\times\texttt{ITER}+i$. If bucket $B_j$ has patterns of length $\ell_j$, then there cannot be a match in this bucket at position less than $\ell_j-1$. Therefore, we initialize the state mask to all $0$'s, except for $8i+j$ where $0\le i< \ell_j-1$. After an iteration, we update $R:= R \gg 64$, continuing matching the next $8$ bytes. By that way, we ensure that at each position, the prefix of length at most $8$ is considered.
+
+Coming back to the example, the initial state mask is
+
+$$R= \underbrace{00\ldots00}_{104} \,\, 11111100\,\,11111110\,\,11111111.$$
+Let us execution on the text $babc$. Since there are only $4$ character in the text, there is only one iteration. We give details about scanning each character as follows, where we consider the right-most $4$ bytes. The newly bit set to $1$ after each character is scanned is underlined.
+
+\begin{tabular*}{\textwidth}{lll}
+  Scan & Update & Result\\
+  \hline
+  $b$ & $ R\gets R | (M[b] \ll 0)$ & $\ldots\,\,11111100\,\,111111\underline{\bm{1}}0\,\,11111110\,\,11111111$\\
+  $a$ & $ R\gets R | (M[a] \ll 1)$ & $\ldots\,\,11111100\,\,11111110\,\,1111111\underline{\bm{1}}\,\,11111111$\\
+  $b$ & $ R\gets R | (M[b] \ll 2)$ & $\ldots\,\,11111100\,\,11111110\,\,11111110\,\,11111111$\\
+  $c$ & $ R\gets R | (M[c] \ll 3)$ & $\ldots\,\,1111110\underline{\bm{1}}\,\,11111110\,\,11111110\,\,11111111$
+\end{tabular*}
+
+Now we report that there is a match at bucket $B_0$ that ends at position $1$, a match at bucket $B_1$ that ends at position $2$ and a match at bucket $B_0$ that ends at position $3$. Since we already know the length of the patterns in each bucket, we can retrieve the beginning position of those potential matches and verify them by exact string comparison. In this case, those three potential matches are indeed matches. We give the pseudocode as in Algorithm~\ref{alg:compilation} and Algorithm~\ref{alg:execution}.
+
+\begin{algorithm}[H]
+  \caption{Compilation phase of the FDR string matcher}
+  \label{alg:compilation}
+  \begin{algorithmic}[1]
+    \State Assign each pattern to a bucket $B_1,\ldots,B_b$.
+
+    \State $M\gets$  a dictionary mapping each character to a mask.
+
+    \For{$c=00000000$ to $11111111$}
+    \State $M[c] \gets \underbrace{00\ldots00}_{64}\underbrace{11\ldots11}_{64}$ \Comment{Initialize.}
+    \For{$j=0$ to $7$ and $B_j$ is not empty}
+    \State $\ell_j\gets$ length of the longest pattern in bucket $B_j$.
+    \For{$i=\ell_j$ to $7$}
+    \State $M[c][8i+j] \gets 0$ \Comment{Set padding bits to $0$.}
+    \EndFor
+    \EndFor
+    \EndFor
+
+    \For{$j=0$ to $7$}
+    \For{each pattern $x$ in bucket $B_j$}
+    \For{$i=0$ to $\text{length}(x)-1$}
+    \State $M[x[i]][8i+j] \gets 0$
+    \EndFor
+    \EndFor
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{Execution phase of the FDR string matcher}
+  \label{alg:execution}
+  \begin{algorithmic}[1]
+    \State $R\gets$ a bitmask of size $128$ where the $(8i+j)$-th bit is $0$ if $i\ge \ell_j-1$ and $1$ otherwise.
+    \State $T\gets$ the text to be scanned.
+
+    \For{$\texttt{ITER}=0$ to $\lfloor\frac{\text{length}(T)}{8}\rfloor-1$}
+    \State $V\gets T[8\times\texttt{ITER}\ldots 8\times\texttt{ITER}+7]$
+    \For{$j=0$ to $7$}
+    \State $R\gets R | (M[V[j]] \ll j)$
+    \EndFor
+    \State Report potential matches at positions where the corresponding bits in $R$ are $0$. Verify those potential matches by exact string comparison.
+    \State $R\gets R \gg 64$
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+Coming back to the buckets in the example. The current algorithm cannot give contradiction to the text $ac$ at position $1$ for bucket $B_0$. \textit{Super-characters} are introduced. Let $s$ be the number of bits in a super-character. For example, instead of assigning $M[a]$ as in the first step of the compilation phase, we build a mask for the super-character
+$$(b[0\ldots s-8)\ll 8) \,|\, a.$$
+
+If a character is at the end of a patterns, for example $b$ in the pattern $ab$, then we assign the mask for
+$$0\ll 8 \,|\, b.$$
+
+But now, the algorithms may \textit{fail} to report the match of $ab$ at bucket $B_0$ that ends at position $2$ for the given text $babc$. The reason is that when scanning the second $b$, it looks and ors the mask for the super-character $(b[0\ldots s-8)\ll 8) \,|\, c$ instead of the mask for $0\ll 8 \,|\, b$. The idea is to set the bit(s) that may introduce a wrong contradiction to $0$ in the mask for the super-character beforehand. More precisely, if a character $c$ appears at position $0$ of a pattern (that is, a bit confusing, at the end!) in bucket $B_j$, then we set the bit at position $j$ to $0$ in the mask for the super-character
+$$(x[0\ldots s-8)\ll 8) \,|\, c$$
+for \textit{every} character $x$. This can be done more efficiently, as in fact there are only $2^{s-8}$ such super-characters. The corrected compilation pseudocode is given in Algorithm~\ref{alg:compilation-super}. The changes or additions are highlighted in \textcolor{gustave}{blue}.
+
+\begin{algorithm}[H]
+  \caption{Compilation phase of the FDR string matcher}
+  \label{alg:compilation-super}
+  \begin{algorithmic}[1]
+    \State Assign each pattern to a bucket $B_1,\ldots,B_b$.
+
+    \State $M\gets$  a dictionary mapping each character to a mask.
+
+    \State \textcolor{gustave}{$s\gets$ the number of bits in a super-character.}
+
+    \For{\textcolor{gustave}{$c=\underbrace{00\ldots00}_{s}$ to $\underbrace{11\ldots11}_{s}$}}
+    \State $M[c] \gets \underbrace{00\ldots00}_{64}\underbrace{11\ldots11}_{64}$ \Comment{Initialize.}
+    \For{$j=0$ to $7$ and $B_j$ is not empty}
+    \State $\ell_j\gets$ length of the longest pattern in bucket $B_j$.
+    \For{$i=\ell_j$ to $7$}
+    \State $M[c][8i+j] \gets 0$ \Comment{Set padding bits to $0$.}
+    \EndFor
+    \EndFor
+    \EndFor
+
+    \For{$j=0$ to $7$}
+    \For{each pattern $x$ in bucket $B_j$}
+    \State \textcolor{gustave}{$f\gets x[0]$} \Comment{\textcolor{gustave}{Handle the end character.}}
+    \For {\textcolor{gustave}{$y\gets \underbrace{0\ldots0}_{s-8}$} to \textcolor{gustave}{$\underbrace{1\ldots1}_{s-8}$}}
+    \State \textcolor{gustave}{$M[(y\ll 8) | f][8j] \gets 0$}
+    \EndFor
+    \For{$i=\textcolor{gustave}{1}$ to $\text{length}(x)-1$}
+    \State $M[x[i]][8i+j] \gets 0$
+    \EndFor
+    \EndFor
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+We comment on the original implementation. In the execution phase, the original implementation lets us traverse $j$ from $0$ to $7$ with skipping. This parameter is called \textit{stride}. For example, if the stride is $2$, then we traverse $j$ from $0$ to $7$ with step $2$. This is because each each step of $j$, we have to query the mask dictionary, which is not in constant time. The trade-off is that there are more positives to verify.
+
+The related paper \cite{wang2019hyperscan} claims that the algorithm outperforms Aho-Corasick (AC). But AC is already linear in the length of the text, asymptotically. So we may have to analyze very closely to the original implementation to understand the reason. In fact, there are some optimizations in the original implementation that are not reflected in the pseudocode. They leverage SIMD everywhere possible. For example, they encode the mask table in byte codes and access them using (aligned) addresses. Hence I would like to firstly understand why the complexity of FDR is not linear in the number of patterns. I begin at special cases to gain experience, then gradually study more general distributions of patterns and texts, and add super-characters, strides and hashing.
+
+
+\section{Analysis of a Special Cases}
+
+Let there be only one bucket and all patterns have the same length $8$. This gives an intuition that the strength of the algorithms lies not mainly in parallelism but in the fact that false positives are rare. SIMD helps because there are long registers.
+
+It is clear that the complexity of the compilation phase is $\O(p)$, since the number of characters to build masks are fixed.
+
+In the execution phase, each position in the state mask $R$ has to be or-ed at most $8$ times, while $8$ positions are updated at the same time. Hence the complexity is roughly given by
+\[
+  \begin{aligned}
+    C & = \O\!\left(n\right)\times [\text{cost of each iteration}]                           \\
+      & = \O(n)\times\Big( [\text{cost of ors}]                                              \\
+      & \qquad + \PP(\text{no positive})\times 0                                             \\
+      & \qquad + \PP(\text{positive but not matched})\times[\text{cost of rejection}]        \\
+      & \qquad + \PP(\text{positive and matched})\times [\text{cost of confirmation}] \Big).
+  \end{aligned}
+\]
+
+If hashing is used, then the cost of rejection would be less than the cost of confirmation. In our case, since we are doing exact string comparison, the cost of rejection and confirmation are in $\O(p)$.
+
+Let $X_1,\ldots,X_p\overset{iid}{\sim}\U(\{0,1\}^{64})$ be the patterns, uniformly distributed in the set of binary strings of length $64$. Let $Y\sim \U(\{0,1\}^{8})$ be the text at an iteration. This implies that every character is drawn independently and uniformly at random. Suppose that there is only one bucket $B_0$ and all patterns are in this bucket. Let $A$ be the event that there is a match ending at a position and $B$ be the event that there is a positive. Then $A\subset B$. Let $D$ be the event that all patterns are distinct. We rewrite the complexity as follows.
+\begin{align*}
+  C & = \O(n)(1 + \PP(B^c\mid D)\times 0 + \O(p)\times (\PP(A,B\mid D) + \PP(A^c,B\mid D))) \\
+    & = \O(n)(1 + \O(p)\times (\PP(A\mid D) + \PP(B\mid D) - \PP(A\mid D)))                 \\
+    & = \O(n)(1 + \O(p)\times \PP(B\mid D)).
+\end{align*}
+
+We check that $\PP(B^c\mid D)+\PP(A,B\mid D)+\PP(A^c,B\mid D)=1$, so the formulation should be correct. The algorithm is efficient when $\PP(B\mid D)$ is negligible. In the first time, I tried to compute $\PP(B\mid D)$ directly. Then I realized that it is not much different if we do not condition on $D$. Let me give this computation later. Maybe it can be used for more general cases. In fact, $\PP(B\mid D)$ is close to $\PP(B)$. We have
+\begin{align*}
+  \PP(B\mid D) - \PP(B)
+   & = \dfrac{\PP(B,D)}{\PP(D)} - \PP(B,D) - \PP(B,D^c) \\
+   & \le \PP(B,D)\left(\dfrac{1}{\PP(D)}-1\right)       \\
+   & \le \PP(D)\left(\dfrac{1}{\PP(D)}-1\right)         \\
+   & = 1-\PP(D) = \PP(D^c).
+\end{align*}
+
+Now we bound $\PP(D^c)$. This is the probability that there are two patterns that are the same. Let $N=2^{64}$. Firstly, we choose $2$ among $p$ patterns and set them to be one of the $N$ possible patterns. Then we choose the remaining $p-2$ patterns from the remaining $N-1$ possible patterns. There may be some over-counting, so we have
+
+$$\PP(D^c)\le \dfrac{\binom{p}{2}\times N\times N^{p-2}}{N^p} = \dfrac{\binom{p}{2}}{N}.$$
+
+This is indeed negligible because $N$ is very large. Now we compute $\PP(B)$, the probability that there is a positive. Since $Y$ is uniformly distributed and independent of the patterns, we can fix $Y=0^{64}$. Let us count the number of possible values of $X_1,\ldots,X_p$ such that there is a positive. There are in total $N^p$ possible values of $X_1,\ldots,X_p$. For each position $i$ from $0$ to $7$, there are $2^8=256$ possible characters. But $00000000$ is forbidden. Hence there are $255$ available possible characters allowed for the patterns. Therefore, there are $255^p$ possible values of $X_1[8i\ldots 8i+7],\ldots,X_p[8i\ldots 8i+7]$ such that there is no positive. Hence, there are $(N^p-255^p)^8$ possible values of $X_1,\ldots,X_p$ such that there is a positive. Therefore,
+$$\PP(B) = \dfrac{(N^p-255^p)^8}{N^{8p}} = \left(1-\left(\dfrac{255}{256}\right)^p\right)^8.$$
+
+When $p\ge 135$, $p\PP(B)\ge 0.1$. The algorithm starts to be inefficient. Suppose that $p$ patterns are divided into $8$ buckets evenly. Then the new probability of a positive is
+$$\PP(B)=1-\left(1-\left(1-\left(\dfrac{255}{256}\right)^{p/8}\right)^8\right)^8.$$
+
+The new $p\PP(B)$ exceeds $0.1$ when $p\ge 460$.
+
+Let us use a different approach to compute $\PP(B)$, which then can then be applied to compute $\PP(B\mid D)$, and the case where super-characters are used. Again, since $Y$ is uniformly distributed and independent of the patterns, we can fix $Y=0^{64}$. Let $U=\{0,1\}^{64}$ be the universe. Define the sets
+$$S_j=\{x\in U \mid x[8j\ldots 8j+7] = 0^8\}, j\in\{0,\ldots, 7\}.$$
+
+Then $B$ is the event that there is at least one pattern in each $S_j$ i.e. the set $\{X_1,\ldots,X_p\}$ hits all $S_j$'s. Then $B^c$ is the event that there is some $j$ such that $\{X_1,\ldots,X_p\}$ does not hit $S_j$.
+$$B^c = \bigcup_{j=0}^7 \underbrace{\bigcap_{i=1}^p \{X_i\notin S_j\}}_{E_j}.$$
+By inclusion-exclusion,
+\begin{align*}
+  \PP(B)
+   & = 1-\PP\left(\bigcup_{j=0}^7 E_j\right)                                                                                                                                         \\
+   & = 1-\sum_{\varnothing\ne L \subset \{0\ldots 7\}} (-1)^{|L|+1}\PP\left(\bigcap_{j\in L} E_j\right)                                                                              \\
+   & = 1+\sum_{\varnothing\ne L \subset \{0\ldots 7\}} (-1)^{|L|}\PP\left(\bigcap_{j\in L}\bigcap_{i=1}^p \{X_i\notin S_j\}\right)                                                   \\
+   & = 1+\sum_{\varnothing\ne L \subset \{0\ldots 7\}} (-1)^{|L|}\PP\left(\bigcap_{i=1}^p \left\{X_i\notin \bigcup_{j\in L}S_j\right\}\right)                                        \\
+   & = 1+\sum_{\varnothing\ne L \subset \{0\ldots 7\}} (-1)^{|L|}\PP\left(X_1\notin \bigcup_{j\in L} S_j\right)^p                             & (\text{since }X_i\text{'s are iid}).
+\end{align*}
+
+The events $\{X_1\notin S_j\}, j\in L$ are in fact independent, since the $S_j$'s forbid $0^8$ at disjoint positions. Let $V_L = (X_1\notin \bigcup_{j\in L} S_j)$. It will be clear when we calculate $\PP(V_L)$. To make $V_L$ happen, we can only choose $2^8-1=255$ possible strings for $X_1[8j\ldots 8j+7]$ for each $j\in L$ and $2^8=256$ possible strings for each $j\notin L$. Hence,
+
+$$\PP\left(V_L\right) = \dfrac{256^{8-|L|}\times 255^{|L|}}{N} = \left(\dfrac{255}{256}\right)^{|L|}.$$
+
+There is $\binom{8}{\ell}$ subsets of $\{0\ldots 7\}$ of size $\ell$. Hence,
+$$\PP(B)=1+\sum\limits_{\ell=1}^8 \binom{8}{\ell} (-1)^{\ell} \left(\dfrac{255}{256}\right)^{p\ell}=\left(1-\left(\dfrac{255}{256}\right)^p\right)^8.$$
+Note that in the computation of $\PP\left(V_L\right)$, the numerator $256^{8-|L|}\times 255^{|L|}=N\left(255/256\right)^{|L|}$ is the number of patterns that can be chosen for each $X_i$. Conditioning on $D$ means to choose $p$ distinct patterns. Hence,
+$$\PP\left(\cap_{j\in L} E_j\mid D\right) = \dfrac{\binom{N\left(255/256\right)^{|L|}}{p}}{\binom{N}{p}} \approx \left(\dfrac{255}{256}\right)^{p|L|}.$$
+
+Let us take super-characters into consideration. Recall that we may have to set the bit at position $j$ to $0$ in the mask for the super-character
+$$(x[0\ldots s-7]\ll 8) \,|\, c$$ if $c$ appears at the end of a pattern. That is, we only may have to set the bits in the \textit{first} byte, which can be or-ed with the considered position of the text \textit{once}. The other bits of the masks in the super-character case are the same as in the last case. Therefore, now we define
+$$S^{(s)}_j=\{x\in U\,|\, x[j\ldots j+7] = 0^8 \text{ and } x[j-8\ldots j+s-15] = 0^{s-8}\}, j\in\{\textcolor{gustave}{1},\ldots, 7\},$$
+and similarly
+$$E^{(s)}_j=\{X_1\notin S^{(s)}_j,\ldots, X_p\notin S^{(s)}_j\}, j\in\{1,\ldots, 7\}.$$
+
+That is, we do not care about position $0$, and give an upper bound for $\PP(B)$ by only considering the events $E^{(s)}_j$ for $j\in\{1,\ldots, 7\}$. Let me first attempt like this, because handling which cases are some masks set to $0$ at the first byte seems complicated to me at the moment, since we have to consider characters that appear both at the end and the middle of patterns. Similarly, we have
+\begin{align*}
+  \PP(B)
+   & \le 1-\PP\left(\bigcup_{j=1}^7 E^{(s)}_j\right)                                                                       \\
+   & = 1+ \sum_{\varnothing\ne L \subset \{1,\ldots, 7\}} (-1)^{|L|}\PP\left(X_1\notin \bigcup_{j\in L} S^{(s)}_j\right)^p \\
+   & = 1+ \sum_{\varnothing\ne L \subset \{1,\ldots, 7\}} (-1)^{|L|}\PP\left(V^{(s)}_L\right)^p
+\end{align*}
+
+Now we compute $\PP\left(V^{(s)}_L\right)$. Previously, we were able to ``choose 255 among 256'' because the $S_j$'s forbid $0^8$ at disjoint positions. Now the $S^{(s)}_j$'s forbid $0^8$ at positions that may overlap. So we will decompose $\cup_{j\in L} S^{(s)}_j$ into $\cup_{C\in\C_L}\left(\cup_{j\in C} S_j\right)$, where each $C$ is a \textit{cluster} i.e. a maximal subset of $L$ containing consecutive elements. For example, if $L=\{1,2,4,5,6\}$, then there are two clusters $\{1,2\}$ and $\{4,5,6\}$. Then
+$$\PP\left(V^{(s)}_L\right) = \prod_{C\in\C_L}\PP\left(X_1\notin \bigcup_{j\in C} S^{(s)}_j\right) = \prod_{C\in\C_L}\left(1-\PP\left(X_1\in \bigcup_{j\in C} S^{(s)}_j\right)\right).$$
+
+Let $R_j = [8j, 8j+7] \cup [8j-8, 8j+s-15]$ be the positions corresponding to $S^{(s)}_j$. By inclusion-exclusion again.
+$$P\left(X_1\in \bigcup_{j\in C} S^{(s)}_j\right) = \sum\limits_{\varnothing\ne K\subset C}(-1)^{|K|+1} \PP\left(X_1\in \bigcap\limits_{j\in K}S^{(s)}_j\right).$$
+The event $X_1\in \bigcap\limits_{j\in K}S^{(s)}_j$ means that $X_1$ has $0$'s at the positions in $\bigcup_{j\in K} R_j$ and can be any string at the other positions. Hence,
+$$P(V^{(s)}) = \sum\limits_{\varnothing\ne K\subset L}(-1)^{|K|+1} \dfrac{1}{2^{|\bigcup_{j\in K} R_j|}}.$$
+Now we have to compute $r_K=|\bigcup_{j\in K} R_j|$. We leverage \textit{clusters} in $K$. Let $|K|=k\ge 1$. If $K$ has $u$ clusters, then
+$$r_K=8k+u(s-8).$$
+The problem is reduced to counting the number of partitions of a set of size $k$ to have $u$ clusters. There are two stages. The first stage is to choose the sizes of the clusters i.e. $x_1,\ldots,x_u \in \NN^*$ such that
+$$x_1+\cdots+x_u=k.$$
+By Euler's Candies Division, there are $\binom{k-1}{u-1}$ ways to do this. The second stage is to choose the gaps between the clusters i.e. $y_0,y_u\in\NN$ and $y_1,\ldots,y_{u-1}\in\NN^*$ such that
+$$y_0+x_1+y_1+\ldots+y_{u-1}+x_u+y_u=7 \Leftrightarrow y_0+\ldots+y_u=7-k.$$
+Let $y'_0 = y_0+1$ and $y'_u = y_u+1$. Then $y'_0,y_1,\ldots,y_{u-1},y'_u \in \NN^*$ and
+$$y'_0+y_1+\ldots+y_{u-1}+y'_u = 9-k.$$
+By Euler's Candies Division again, there are $\binom{8-k}{u}$ ways to do this. Note that $\binom{8-k}{u-1}=0$ if $u>k$. Therefore, the number of ways to partition a subset of size $k$ of $\{1,\ldots, 7\}$ such that there are $u$ clusters is
+$$\binom{k-1}{u-1}\binom{8-k}{u}.$$
+From that formula, we derive that $u\in\min\{k,8-k\}$. Hence,
+$$\PP\left(X_1\in \bigcap\limits_{j\in K}S^{(s)}_j\right) = \sum\limits_{k=1}^7 \sum\limits_{u=1}^{\min\{k,8-k\}}(-1)^k \binom{k-1}{u-1}\binom{8-k}{u}\dfrac{1}{2^{8k+u(s-8)}}.$$
+I think we can elaborate more to count the number of subsets $L$ having $v_i$ clusters of size $i$ for $i\in\{1,\ldots, 7\}$. I am not sure if I can get an asymptotic approximation to compare with the case without super-characters. Experiment is available in the \href{https://github.com/mintcd/string-matchers/blob/main/src/py_fdr/experiments/compare_supercharacter.ipynb}{repository}, showing that the probability of a positive is significantly reduced by using super-characters. In the experiment, we iterate through subsets $L$ of $\{1,\ldots,7\}$, then subsets $K$ of $L$, no matter if $S$ has more than one cluster or not. The formula is
+$$\PP(B) \le 1+\sum\limits_{\varnothing\ne L\subset \{1,\ldots, 7\}} (-1)^{|L|}\left(1+\sum\limits_{\varnothing\neq K\subset L}(-1)^{|K|} \dfrac{1}{2^{|\bigcup_{j\in K} R_j|}}\right)^p.$$
+
+
+\section{Problem Statement}
+
+In general, problem is stated as follows. Let $\D_{P}$ be the distribution of patterns and $\D_T$ be the distribution the text. Let the domain of the patterns be $\X$ and the domain of the text be $\Y$. We have to write the risk $R_p$ i.e. the probability of a positive, as a function of $\D_P$ and $\D_T$ when $p$ patterns are drawn from $\D_P$ and the text is drawn from $\D_T$.
+
+An algorithm takes the patterns i.e. $\X^p$ and produces an assignment $f:\bigcup\limits_{p\in \NN} \X^p \to \{0,\ldots, 7\}$. It aims to minimize another risk $\hat{R}_p$ over only $\X^p$.
+
+We would like to see if following difference can be bounded e.g.
+$$\frac{1}{n}\sum_{i=1}^n \left|\min R_p - \min \hat{R}_p\right|$$

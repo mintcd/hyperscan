@@ -1,46 +1,30 @@
-import os
-import sys
 import json
 import csv
 import subprocess
 from pathlib import Path
 
-def main():
-    base_dir = Path(__file__).parent.resolve()
-    regex_file = Path(r"D:\Projects\hyperscan\dataset\regexes.txt")
-    out_dir = Path(r"D:\Projects\hyperscan\output\graphs")
-    
-    # Create output directory if it doesn't exist
-    out_dir.mkdir(parents=True, exist_ok=True)
-    csv_file = out_dir / "statistics.csv"
+BASE_DIR = Path(__file__).parent.parent.resolve()
+REGEX_FILE = BASE_DIR / "dataset" / "regexes.txt"
+EXE_FILE = BASE_DIR / "build_msvc" / "bin" / "dump_rose.exe"
+OUT_DIR = BASE_DIR / "output" / "info"
+STATISTICS_FILE = OUT_DIR / "statistics.csv"
 
-    # Determine executable extension and path
-    exe_suffix = ".exe" if os.name == "nt" else ""
-    dump_rose_exe = Path(r"D:\Projects\hyperscan\build_msvc\bin\dump_rose.exe")
-    
-    if not dump_rose_exe.exists():
-        print(f"ERROR: Cannot find dump_rose executable at {dump_rose_exe}")
-        print("Please build the examples first.")
-        sys.exit(1)
 
-    if not regex_file.exists():
-        print(f"ERROR: Cannot find regex file at {regex_file}")
-        sys.exit(1)
-
-    with open(regex_file, 'r', encoding='utf-8') as f:
+def main():    
+    with open(REGEX_FILE, 'r', encoding='utf-8') as f:
         regexes = [line.strip() for line in f if line.strip()]
 
     stats = []
 
-    print(f"Starting processing of {len(regexes)} regexes...")
+    print(f"Starting processing {len(regexes)} regexes...")
 
     for i, regex in enumerate(regexes):
-        json_path = out_dir / f"{i}.json"
+        json_path = OUT_DIR / f"{i}.json"
         
-        # 1. Call dump_rose
+        # Call dump_rose
         try:
             subprocess.run(
-                [str(dump_rose_exe), regex, str(json_path)],
+                [str(EXE_FILE), regex, str(json_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 timeout=5  # Prevent hanging on pathological regexes
@@ -54,7 +38,7 @@ def main():
 
         # 2. Parse JSON
         if not json_path.exists():
-            print(f"[-] No JSON output for regex {i} (compilation might have failed)")
+            print(f"[-] No output for regex {i}: {regex}")
             continue
 
         try:
@@ -70,12 +54,12 @@ def main():
             print(f"[!] Error parsing JSON for regex {i}: {e}")
 
     # 3. Output to CSV
-    with open(csv_file, 'w', newline='', encoding='utf-8') as cf:
+    with open(STATISTICS_FILE, 'w', newline='', encoding='utf-8') as cf:
         writer = csv.DictWriter(cf, fieldnames=["index", "regex", "num_literals", "num_FAs"])
         writer.writeheader()
         writer.writerows(stats)
     
-    print(f"\nDone! Successfully processed {len(stats)} regexes and saved to {csv_file}")
+    print(f"\nDone! Successfully processed {len(stats)} regexes and saved to {STATISTICS_FILE}")
 
 if __name__ == "__main__":
     main()

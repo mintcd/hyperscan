@@ -1,0 +1,25 @@
+\begin{center}
+  \vspace{1em}
+  \textbf{\LARGE Taking Assignment Algorithm into Account}\\
+  \vspace{1em}
+\end{center}
+
+\section{Setting}
+Let $P$ be a fixed set of patterns, $T$ be a random text, and $B=\{0,\ldots,7\}$ be the set of buckets. An assignment function has the form $\sigma: P \to B$. For each $j\in B$ and $k\in\{0,\ldots,|T|-1\}$, let $I_{j,k}(\sigma)\in\{0,1\}$ be a random variable such that $I_{j,k}(\sigma) = 1$ if and only if there is a positive at position $k$ of the text, in bucket $j$. Let $\sigma^{-1}(j) = \{p \in P : \sigma(p) = j\}$ be the set of patterns assigned to bucket $j$. Let $V: 2^P\to\RR$ be the cost of verifying if a set of patterns is a match. The cost of processing at index $k$ of the text is
+$$C_k(\sigma) = \EE\left[\sum\limits_{j\in B} I_{j,k}(\sigma) V(\sigma^{-1}(j))\right].$$
+
+An observation is that $I_{j,k}(\sigma)$ depends on the use of super-characters and strides, while $V(\sigma^{-1}(j))$ depends on hashing.
+
+
+\section{Assignment Algorithm}
+
+Firstly, we write the cost function used in the paper of Hyperscan. Let $\tilde{P}=(p_1,\ldots, p_m)$ be one of a permutation of $P$ where the patterns are sorted by length, then by lexicographical order. The assignment function is derived from a partition of $\tilde{P}$ into 8 buckets, defined by the indices $0=b_0 < b_1 < \ldots < b_6 < b_7 = m$. The patterns in bucket $j$ are $p_{b_j},\ldots, p_{b_{j+1}-1}$. The cost function is defined as follows
+$$F(b_1,\ldots, b_6) = \sum_{i=0}^{7}\dfrac{(b_{i+1}-b_{i})^\alpha}{|p_{b_{i}}|^\beta}.$$
+
+\begin{proposition}
+  Define the heuristic cost function $H$ over the set of assignment functions as
+  $$H(\sigma) = \sum_{j\in B}\dfrac{|\sigma^{-1}(j)|^\alpha}{\min\limits_{p \in \sigma^{-1}(j)} |p|^\beta}.$$
+  Then $\min\limits_{b_1,\ldots,b_6}F(b_1,\ldots, b_6) = \min\limits_{\sigma} H(\sigma).$
+\end{proposition}
+
+
