@@ -1,9 +1,37 @@
-#include "string_processing.h"
+#include "my_utils.h"
 #include "util/charreach.h"
 
 #include <sstream>
 #include <iomanip>
 #include <cctype>
+#include <string>
+
+using namespace std;
+
+#ifdef _WIN32
+#include <direct.h> // for _mkdir
+#endif
+#include <util/ue2string.h>
+
+// Cross-platform create_directories helper (creates all components of a path)
+void create_directories(const string &path) {
+    string temp;
+    for (size_t i = 0; i < path.length(); ++i) {
+        temp += path[i];
+        if (path[i] == '/' || path[i] == '\\') {
+#ifdef _WIN32
+            _mkdir(temp.c_str());
+#else
+            mkdir(temp.c_str(), 0777);
+#endif
+        }
+    }
+#ifdef _WIN32
+    _mkdir(temp.c_str());
+#else
+    mkdir(temp.c_str(), 0777);
+#endif
+}
 
 std::string formatCharReachSimple(const ue2::CharReach &cr) {
 	using ue2::CharReach;
@@ -66,5 +94,20 @@ std::string escapeJsonString(const std::string& input) {
 		}
 	}
 	return ss.str();
+}
+
+// Format a hex literal to an alphanumeric string, escaping non-printable characters and quotes/backslashes.
+string formatLiteral(const ue2::ue2_literal &lit) {
+    ostringstream os;
+    for (auto it = lit.begin(); it != lit.end(); ++it) {
+        unsigned char c = (unsigned char)(*it).c;
+        if (isprint(c) && c != '\\' && c != '"') {
+            os << (char)c;
+        } else {
+            os << "\\x" << hex << setw(2) << setfill('0') << (unsigned)c
+               << dec;
+        }
+    }
+    return os.str();
 }
 

@@ -18,7 +18,6 @@
 #include "util/graph_range.h"
 #include "util/target_info.h"
 #include "util/dump_charclass.h"
-#include "utils/string_processing.h"
 #include "util/container.h"
 #include "nfagraph/ng_reports.h"
 
@@ -40,34 +39,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <sys/stat.h>
+
+#include "my_utils.h"
 
 #ifdef _WIN32
 #undef min
 #undef max
 #endif
 
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <sys/stat.h>
-#endif
-
 using namespace std;
 
 
-static string formatLiteral(const ue2::ue2_literal &lit) {
-    ostringstream os;
-    for (auto it = lit.begin(); it != lit.end(); ++it) {
-        unsigned char c = (unsigned char)(*it).c;
-        if (isprint(c) && c != '\\' && c != '"') {
-            os << (char)c;
-        } else {
-            os << "\\x" << hex << setw(2) << setfill('0') << (unsigned)c
-               << dec;
-        }
-    }
-    return os.str();
-}
 
 static const ue2::rose_literal_id *findLiteralById(const ue2::RoseBuildImpl &b,
                                                    u32 id) {
@@ -77,7 +60,7 @@ static const ue2::rose_literal_id *findLiteralById(const ue2::RoseBuildImpl &b,
     return nullptr;
 }
 
-static string irVertexName(const ue2::RoseBuildImpl &build,
+static string getVertexNameId(const ue2::RoseBuildImpl &build,
                            ue2::RoseVertex v) {
     if (v == build.root) {
         return "root";
@@ -94,228 +77,19 @@ static string irVertexName(const ue2::RoseBuildImpl &build,
     return os.str();
 }
 
-static string indentStr(int level) {
-    return string(level * 2, ' ');
-}
 
-// `formatCharReachSimple` and `escapeJsonString` moved to
-// examples/utils/string_processing.{h,cpp}
-
-// Cross-platform create_directories helper (creates all components of a path)
-static void create_directories(const string &path) {
-    string temp;
-    for (size_t i = 0; i < path.length(); ++i) {
-        temp += path[i];
-        if (path[i] == '/' || path[i] == '\\') {
-#ifdef _WIN32
-            _mkdir(temp.c_str());
-#else
-            mkdir(temp.c_str(), 0777);
-#endif
-        }
-    }
-#ifdef _WIN32
-    _mkdir(temp.c_str());
-#else
-    mkdir(temp.c_str(), 0777);
-#endif
-}
-
-// Convert a Hyperscan AST Component to JSON using the public visitor API.
-static string astToJson(const ue2::Component *comp) {
-    if (!comp) return "null";
-
+static void dumpRoles(ostream &os, const ue2::RoseBuildImpl &build, const ue2::RoseGraph &g) {
     using namespace ue2;
-    ostringstream ss;
-
-    // Visitor that emits JSON for each component using the ConstComponentVisitor
-    // callbacks. This avoids accessing protected/private members directly.
-    class JsonVisitor : public ue2::DefaultConstComponentVisitor {
-        using ue2::DefaultConstComponentVisitor::pre;
-        using ue2::DefaultConstComponentVisitor::during;
-        using ue2::DefaultConstComponentVisitor::post;
-        ostringstream &ss;
-    public:
-        JsonVisitor(ostringstream &s) : ss(s) {}
-
-        void pre(const ue2::ComponentSequence &c) override {
-            // std::ostringstream doss;
-            // ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c));
-            ss << "{ \"type\": \"Sequence\"";
-            unsigned idx = c.getCaptureIndex();
-            if (idx != ue2::ComponentSequence::NOT_CAPTURED) {
-                ss << ", \"capture_index\": " << idx;
-            } else {
-                ss << ", \"capture_index\": null";
-            }
-            const std::string &nm = c.getCaptureName();
-            if (!nm.empty()) ss << ", \"capture_name\": \"" << escapeJsonString(nm) << "\"";
-            ss << ", \"children\": [";
-        }
-        void during(const ue2::ComponentSequence &) override { ss << ", "; }
-        void post(const ue2::ComponentSequence &) override { ss << "] }"; }
-
-        void pre(const ue2::ComponentAlternation &c) override {
-            
-            ss << "{ \"type\": \"Alternation\", \"children\": [";
-        }
-        void during(const ue2::ComponentAlternation &) override { ss << ", "; }
-        void post(const ue2::ComponentAlternation &) override { ss << "] }"; }
-
-        void pre(const ue2::ComponentRepeat &c) override {
-            ss << "{ \"type\": \"Repeat\", \"children\": [";
-        }
-        void post(const ue2::ComponentRepeat &) override { ss << "] }"; }
-
-        // Leaf/default components: emit a simple type object.
-        void pre(const ue2::ComponentByte &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Byte\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentByte &) override { ss << " }"; }
-
-        
-
-        void pre(const ue2::ComponentEmpty &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Empty\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentEmpty &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentBoundary &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Boundary\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentBoundary &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentAssertion &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"Assertion\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentAssertion &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentBackReference &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"BackReference\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentBackReference &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentCondReference &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"CondReference\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentCondReference &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentAtomicGroup &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"AtomicGroup\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentAtomicGroup &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentEUS &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"EUS\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentEUS &) override { ss << " }"; }
-
-        void pre(const ue2::ComponentWordBoundary &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"WordBoundary\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::ComponentWordBoundary &) override { ss << " }"; }
-
-        void pre(const ue2::AsciiComponentClass &c) override {
-            const ue2::CharReach &cr = c.getCharReach();
-
-            if (cr.none()) {
-                ss << "{ \"type\": \"AsciiComponentClass\", \"chars\": []";
-                return;
-            }
-
-            // Single-character literal -> emit Literal node
-            if (cr.count() == 1) {
-                unsigned ch = (unsigned)cr.find_first();
-                std::ostringstream tmp;
-                if (isprint(ch) && ch != '\\' && ch != '"') tmp << (char)ch;
-                else tmp << "\\x" << std::hex << std::setw(2) << std::setfill('0') << ch << std::dec;
-                ss << "{ \"type\": \"Literal\", \"value\": \"" << escapeJsonString(tmp.str()) << "\"";
-                return;
-            }
-
-            // Check for a contiguous range -> emit Range node
-            size_t first = cr.find_first();
-            size_t last = first;
-            size_t it = first;
-            bool contiguous = true;
-            while ((it = cr.find_next(it)) != ue2::CharReach::npos) {
-                if (it != last + 1) { contiguous = false; break; }
-                last = it;
-            }
-
-            if (contiguous) {
-                std::ostringstream a, b;
-                a << "0x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)first << std::dec;
-                b << "0x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)last << std::dec;
-                ss << "{ \"type\": \"Range\", \"value\": [\"" << a.str() << "\", \"" << b.str() << "\"]";
-                return;
-            }
-
-            // Otherwise, enumerate characters
-            ss << "{ \"type\": \"AsciiComponentClass\", \"chars\": [";
-            bool first_out = true;
-            for (size_t j = cr.find_first(); j != ue2::CharReach::npos; j = cr.find_next(j)) {
-                if (!first_out) ss << ", ";
-                first_out = false;
-                std::ostringstream tmp;
-                if (isprint((int)j) && j != '\\' && j != '"') tmp << (char)j;
-                else tmp << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (unsigned)j << std::dec;
-                ss << "\"" << escapeJsonString(tmp.str()) << "\"";
-            }
-            ss << "]";
-        }
-        void post(const ue2::AsciiComponentClass &) override { ss << " }"; }
-
-        void pre(const ue2::UTF8ComponentClass &c) override { std::ostringstream doss; ue2::dumpTree(doss, reinterpret_cast<const ue2::Component *>(&c)); ss << "{ \"type\": \"UTF8ComponentClass\", \"dump\": \"" << escapeJsonString(doss.str()) << "\""; }
-        void post(const ue2::UTF8ComponentClass &) override { ss << " }"; }
-    };
-
-    JsonVisitor v(ss);
-    comp->accept(v);
-    return ss.str();
-}
-
-static void printJsonReport(const string &pattern, const char *json_file) {
-    using namespace ue2;
-
-    Grey grey;
-    target_t current_target = get_current_target();
-    CompileContext cc(false, false, current_target, grey);
-
-    // Extract AST
-    ParsedExpression pe(0, pattern.c_str(), 0, 0, nullptr);
-    string init_ast_json = astToJson(pe.component.get());
-
-    // pe.component->optimise(true /* root is connected to sds */);
-    // string last_ast_json = astToJson(pe.component.get());
-
-    NG ng(cc, 1, 0);
-    addExpression(ng, 0, pattern.c_str(), 0, nullptr, 0);
-
-    
-
-    const auto *build = dynamic_cast<const RoseBuildImpl *>(ng.rose.get());
-    if (!build) {
-        throw runtime_error("Unable to access Rose compile IR");
-    }
-
-    const RoseGraph &g = build->g;
-
-    ofstream ofs;
-    streambuf *orig_buf = nullptr;
-    if (json_file) {
-        // Ensure parent directory exists so opening the JSON file won't fail
-        string out_path(json_file);
-        size_t pos = out_path.find_last_of("/\\");
-        if (pos != string::npos) {
-            string parent = out_path.substr(0, pos);
-            create_directories(parent);
-        }
-        ofs.open(json_file);
-        if (!ofs.is_open()) {
-            throw runtime_error("Unable to open output JSON file");
-        }
-        orig_buf = cout.rdbuf(ofs.rdbuf());
-    }
-
-    cout << "{\n";
-    cout << "  \"regex\": \"" << escapeJsonString(pattern) << "\",\n";
-    cout << "  \"tree\": " << init_ast_json << ",\n";
-    // cout << "  \"last_ast\": " << last_ast_json << ",\n";
-
-    // 1. Literals (Roles)
-    cout << "  \"roles\": [\n";
+    os << "  \"roles\": [\n";
     bool first_lit = true;
-    for (auto v : vertices_range(g)) {
-        string role_id = irVertexName(*build, v);
+    for (RoseVertex v : vertices_range(g)) {
+        string role_id = getVertexNameId(build, v);
         string lit_str = "";
-        const auto &vp = g[v];
+        const RoseVertexProps &vp = g[v];
         
         bool first_s = true;
         for (u32 lit_id : vp.literals) {
-            const auto *lit = findLiteralById(*build, lit_id);
+            const auto *lit = findLiteralById(build, lit_id);
             if (lit) {
                 if (!first_s) lit_str += "|";
                 lit_str += formatLiteral(lit->s);
@@ -324,32 +98,160 @@ static void printJsonReport(const string &pattern, const char *json_file) {
         }
         if (lit_str.empty()) lit_str = "<none>";
 
-        if (!first_lit) cout << ",\n";
-        cout << "    { \"id\": \"" << escapeJsonString(role_id)
-             << "\", \"literal\": \"" << escapeJsonString(lit_str) << "\"";
+        if (!first_lit) os << ",\n";
+        os << "    { \"id\": \"" << escapeJsonString(role_id)
+           << "\", \"literal\": \"" << escapeJsonString(lit_str) << "\"";
 
-        // Print direct reports attached to this role (if any)
         if (!vp.reports.empty()) {
-            cout << ", \"reports\": [" << ue2::as_string_list(vp.reports) << "]";
+            os << ", \"reports\": [" << as_string_list(vp.reports) << "]";
         }
 
-        // If this role has a left (verification) FA, print its reports
         if (vp.left && vp.left.graph) {
-            ue2::left_id l(vp.left);
-            cout << ", \"left_reports\": [" << ue2::as_string_list(ue2::all_reports(l)) << "]";
+            left_id l(vp.left);
+            os << ", \"left\": [" << as_string_list(all_reports(l)) << "]";
         }
 
-        // If this role has a suffix FA, print its top and all reports
         if (vp.suffix && vp.suffix.graph) {
-            ue2::suffix_id s(vp.suffix);
-            cout << ", \"suffix_top\": " << vp.suffix.top;
-            cout << ", \"suffix_reports\": [" << ue2::as_string_list(ue2::all_reports(s)) << "]";
+            suffix_id s(vp.suffix);
+            os << ", \"suffix_top\": " << vp.suffix.top;
+            os << ", \"suffix\": [" << as_string_list(all_reports(s)) << "]";
         }
 
-        cout << " }";
+        os << " }";
         first_lit = false;
     }
-    cout << "\n  ],\n";
+    os << "\n  ],\n";
+}
+
+static void dumpFAs(ostream &os, const vector<const ue2::NGHolder*> &all_fas, map<const void*, string> &fa_ids) {
+    using namespace ue2;
+    os << "  \"FAs\": [\n";
+    bool first_fa = true;
+    for (const NGHolder* h : all_fas) {
+        if (!first_fa) os << ",\n";
+        first_fa = false;
+
+        os << "    {\n";
+        os << "      \"id\": \"" << fa_ids[h] << "\",\n";
+        os << "      \"reports\": [" << as_string_list(all_reports(*h)) << "],\n";
+        
+        // Nodes
+        os << "      \"nodes\": [\n";
+        bool first_node = true;
+        for (auto v : vertices_range(*h)) {
+            if (!first_node) os << ",\n";
+            first_node = false;
+
+            string chars;
+            if (is_special(v, *h)) {
+                switch ((*h)[v].index) {
+                    case NODE_START: chars = "START"; break;
+                    case NODE_START_DOTSTAR: chars = "START_DOTSTAR"; break;
+                    case NODE_ACCEPT: chars = "ACCEPT"; break;
+                    case NODE_ACCEPT_EOD: chars = "ACCEPT_EOD"; break;
+                    default: chars = "SPECIAL"; break;
+                }
+            } else {
+                chars = formatCharReachSimple((*h)[v].char_reach);
+            }
+
+            os << "        { \"id\": \"" << (*h)[v].index 
+               << "\", \"chars\": \"" << escapeJsonString(chars) << "\" }";
+        }
+        os << "\n      ],\n";
+
+        // Transitions
+        os << "      \"transitions\": [\n";
+        bool first_edge = true;
+        for (auto e : edges_range(*h)) {
+            auto u = source(e, *h);
+            auto w = target(e, *h);
+            
+            string lbl = "";
+            if (!(*h)[e].tops.empty()) {
+                lbl += "tops:";
+                bool f = true;
+                for (auto t : (*h)[e].tops) {
+                    if (!f) lbl += ",";
+                    lbl += to_string(t);
+                    f = false;
+                }
+            }
+            
+            if (!first_edge) os << ",\n";
+            first_edge = false;
+            os << "        [\"" << (*h)[u].index << "\", \"" << (*h)[w].index 
+               << "\", \"" << escapeJsonString(lbl) << "\"]";
+        }
+        os << "\n      ]\n";
+        os << "    }";
+    }
+    os << "\n  ],\n";
+}
+
+static void dumpTriggers(ostream &os, const ue2::RoseBuildImpl &build, const ue2::RoseGraph &g, map<const void*, string> &fa_ids) {
+    using namespace ue2;
+    os << "  \"triggers\": [\n";
+    bool first_trigger = true;
+
+    auto print_trigger = [&](const string &src, const string &tgt, const string &lbl) {
+        if (!first_trigger) os << ",\n";
+        first_trigger = false;
+        os << "    [\"" << escapeJsonString(src) << "\", \"" 
+           << escapeJsonString(tgt) << "\", \"" << escapeJsonString(lbl) << "\"]";
+    };
+
+    for (auto e : edges_range(g)) {
+        auto u = source(e, g);
+        auto w = target(e, g);
+        const auto &ep = g[e];
+
+        string src_id = getVertexNameId(build, u);
+        string tgt_id = getVertexNameId(build, w);
+
+        string lbl = "min:" + to_string(ep.minBound) + " max:";
+        if (ep.maxBound == ROSE_BOUND_INF) lbl += "inf";
+        else lbl += to_string(ep.maxBound);
+        
+        // Include the label bounds with <linear>
+        print_trigger(src_id, tgt_id, "<linear> " + lbl);
+
+        if (g[w].left && g[w].left.graph) {
+            string fa_id = fa_ids[g[w].left.graph.get()];
+            print_trigger(src_id, fa_id, "<turnon>");
+            print_trigger(tgt_id, fa_id, "<verify>");
+        }
+    }
+    
+    // Handle suffix FAs triggered by nodes
+    for (RoseVertex v : vertices_range(g)) {
+        if (g[v].suffix && g[v].suffix.graph) {
+            string src_id = getVertexNameId(build, v);
+            string fa_id = fa_ids[g[v].suffix.graph.get()];
+            print_trigger(src_id, fa_id, "suffix top:" + to_string(g[v].suffix.top));
+        }
+    }
+
+    os << "\n  ]\n";
+}
+
+static void printJsonReport(const string &pattern, std::ostream &os) {
+    using namespace ue2;
+
+    Grey grey; 
+    target_t current_target = get_current_target();
+    CompileContext cc(false, false, current_target, grey);
+
+    NG ng(cc, 1, 0);
+    addExpression(ng, 0, pattern.c_str(), 0, nullptr, 0);
+
+    const auto *build = dynamic_cast<const RoseBuildImpl *>(ng.rose.get());
+    const RoseGraph &g = build->g;
+
+    os << "{\n";
+    os << "  \"regex\": \"" << escapeJsonString(pattern) << "\",\n";
+
+    dumpRoles(os, *build, g);
 
     // Collect Unique FAs
     map<const void*, string> fa_ids;
@@ -377,123 +279,11 @@ static void printJsonReport(const string &pattern, const char *json_file) {
         }
     }
 
-    // 2. FAs
-    cout << "  \"FAs\": [\n";
-    bool first_fa = true;
-    for (const NGHolder* h : all_fas) {
-        if (!first_fa) cout << ",\n";
-        first_fa = false;
+    dumpFAs(os, all_fas, fa_ids);
+    dumpTriggers(os, *build, g, fa_ids);
 
-        cout << "    {\n";
-        cout << "      \"id\": \"" << fa_ids[h] << "\",\n";
-        cout << "      \"reports\": [" << ue2::as_string_list(ue2::all_reports(*h)) << "],\n";
-        
-        // Nodes
-        cout << "      \"nodes\": [\n";
-        bool first_node = true;
-        for (auto v : vertices_range(*h)) {
-            if (!first_node) cout << ",\n";
-            first_node = false;
-
-            string chars;
-            if (is_special(v, *h)) {
-                switch ((*h)[v].index) {
-                    case ue2::NODE_START: chars = "START"; break;
-                    case ue2::NODE_START_DOTSTAR: chars = "START_DOTSTAR"; break;
-                    case ue2::NODE_ACCEPT: chars = "ACCEPT"; break;
-                    case ue2::NODE_ACCEPT_EOD: chars = "ACCEPT_EOD"; break;
-                    default: chars = "SPECIAL"; break;
-                }
-            } else {
-                chars = formatCharReachSimple((*h)[v].char_reach);
-            }
-
-            cout << "        { \"id\": \"" << (*h)[v].index 
-                 << "\", \"chars\": \"" << escapeJsonString(chars) << "\" }";
-        }
-        cout << "\n      ],\n";
-
-        // Transitions
-        cout << "      \"transitions\": [\n";
-        bool first_edge = true;
-        for (auto e : edges_range(*h)) {
-            auto u = source(e, *h);
-            auto w = target(e, *h);
-            
-            string lbl = "";
-            if (!(*h)[e].tops.empty()) {
-                lbl += "tops:";
-                bool f = true;
-                for (auto t : (*h)[e].tops) {
-                    if (!f) lbl += ",";
-                    lbl += to_string(t);
-                    f = false;
-                }
-            }
-            
-            if (!first_edge) cout << ",\n";
-            first_edge = false;
-            cout << "        [\"" << (*h)[u].index << "\", \"" << (*h)[w].index 
-                 << "\", \"" << escapeJsonString(lbl) << "\"]";
-        }
-        cout << "\n      ]\n";
-        cout << "    }";
-    }
-    cout << "\n  ],\n";
-
-    // 3. Triggers
-    cout << "  \"triggers\": [\n";
-    bool first_trigger = true;
-
-    auto print_trigger = [&](const string &src, const string &tgt, const string &lbl) {
-        if (!first_trigger) cout << ",\n";
-        first_trigger = false;
-        cout << "    [\"" << escapeJsonString(src) << "\", \"" 
-             << escapeJsonString(tgt) << "\", \"" << escapeJsonString(lbl) << "\"]";
-    };
-
-    for (auto e : edges_range(g)) {
-        auto u = source(e, g);
-        auto w = target(e, g);
-        const auto &ep = g[e];
-
-        string src_id = irVertexName(*build, u);
-        string tgt_id = irVertexName(*build, w);
-
-        printf("Edge (%s, %s)", src_id.c_str(), tgt_id.c_str());
-        
-        string lbl = "min:" + to_string(ep.minBound) + " max:";
-        if (ep.maxBound == ROSE_BOUND_INF) lbl += "inf";
-        else lbl += to_string(ep.maxBound);
-        
-        // [MY NOTE] u triggers w with lbl
-        print_trigger(src_id, tgt_id, "<linear>");
-
-        if (g[w].left && g[w].left.graph) {
-            // [MY NOTE] u and w trigger left engine of w with lbl
-            string fa_id = fa_ids[g[w].left.graph.get()];
-            print_trigger(src_id, fa_id, "<turnon>");
-            print_trigger(tgt_id, fa_id, "<verify>");
-        }
-    }
-    
-    // Handle suffix FAs triggered by nodes
-    for (auto v : vertices_range(g)) {
-        if (g[v].suffix && g[v].suffix.graph) {
-            string src_id = irVertexName(*build, v);
-            string fa_id = fa_ids[g[v].suffix.graph.get()];
-            print_trigger(src_id, fa_id, "suffix top:" + to_string(g[v].suffix.top));
-        }
-    }
-
-    cout << "\n  ]\n";
-    cout << "}\n";
-
-    if (orig_buf) {
-        cout.rdbuf(orig_buf);
-    }
+    os << "}\n";
 }
-
 
 int __cdecl main(int argc, char *argv[]) {
     if (argc < 2 || argc > 3) {
@@ -505,7 +295,21 @@ int __cdecl main(int argc, char *argv[]) {
     const char *json_file = (argc == 3) ? argv[2] : nullptr;
 
     try {
-        printJsonReport(pattern, json_file);
+        if (json_file) {
+            string out_path(json_file);
+            size_t pos = out_path.find_last_of("/\\");
+            if (pos != string::npos) {
+                string parent = out_path.substr(0, pos);
+                create_directories(parent);
+            }
+            ofstream ofs(json_file);
+            if (!ofs.is_open()) {
+                throw runtime_error("Unable to open output JSON file");
+            }
+            printJsonReport(pattern, ofs);
+        } else {
+            printJsonReport(pattern, cout);
+        }
         return 0;
     } catch (const exception &e) {
         cerr << "IR compile error: " << e.what() << endl;

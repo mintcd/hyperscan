@@ -24,7 +24,7 @@ else()
 endif()
 target_link_libraries(dump_nfa hs)
 
-add_executable(dump_rose dump_rose.cpp utils/string_processing.cpp)
+add_executable(dump_rose dump_rose.cpp my_utils.cpp)
 if(MSVC)
     set_source_files_properties(dump_rose.cpp PROPERTIES COMPILE_FLAGS
         "/wd4100")
@@ -34,6 +34,17 @@ else()
 endif()
 target_link_libraries(dump_rose hs)
 target_include_directories(dump_rose PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+add_executable(dump_ast dump_ast.cpp my_utils.cpp)
+if(MSVC)
+    set_source_files_properties(dump_ast.cpp PROPERTIES COMPILE_FLAGS
+        "/wd4100")
+else()
+    set_source_files_properties(dump_ast.cpp PROPERTIES COMPILE_FLAGS
+        "-Wall -Wno-unused-parameter")
+endif()
+target_link_libraries(dump_ast hs)
+target_include_directories(dump_ast PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_executable(dump dump.cpp)
 if(MSVC)

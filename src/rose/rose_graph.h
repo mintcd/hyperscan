@@ -192,6 +192,8 @@ struct RoseEdgeProps {
      *
      * Not used when the target has a left engine (as the engine represents
      * bounds).
+     * 
+     * MYNOTE: This is related to the width of the FA
      */
     u32 minBound = 0;
 
@@ -201,6 +203,8 @@ struct RoseEdgeProps {
      *
      * Not used when the target has a left engine (as the engine represents
      * bounds).
+     * 
+     * MYNOTE: This is related to the width of the FA
      */
     u32 maxBound = 0;
 

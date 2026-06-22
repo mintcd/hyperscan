@@ -1,4 +1,5 @@
-// Simple example: compile a regex into an NFA and print vertices/edges
+// Dump the process of decomposing an NFA graph into subgraphs, with candidate pivot selection and literal analysis.
+
 #include <iostream>
 #include <exception>
 #include <cstdlib>
